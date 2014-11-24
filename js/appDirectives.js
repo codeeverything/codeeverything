@@ -155,3 +155,7 @@ app.directive('formPassword', function() {
         }
     };
 });
+
+app=.directive('fake', function() {
+   return {};
+});
