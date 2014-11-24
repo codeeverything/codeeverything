@@ -1,0 +1,8 @@
+Clowd to do list
+
+* Selections
+* When you paste cursor should move to the end of the text you just pasted
+* When you cut cursor should move to the start of the selection you made
+* Automatically handle scrolling on the x axis. If cursor x pos > screen width then add an offset to the canvas, if less than current offset then reduce offset (to handle going back to the left)
+* Continue to tidy things away into their own classes
+* Alan wanted to be able to move back to where he was previously, i.e. some sort of "position" or "edit" history like undo/redo but with no action.  Perhaps when you take an action that changes the line you're on, or alters the offset (i.e scrolling) we log the position of the cursor in sucha history which we can then go back through to move back to where you were.

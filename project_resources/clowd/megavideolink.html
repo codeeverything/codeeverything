@@ -1,0 +1,34 @@
+<html>
+<a href="javascript:document.getElementById('downloadlink').style.display='inline'; return false;">blargh</a>
+<a href="javascript:var e = document.getElementsByTagName('video')[0]; e.style.position='absolute'; e.style.zindex=1000; e.style.width='1920px'; e.style.height='1080px';  return false;">blargh2</a>
+
+<div id="canvas" style="width: 200px; height:200px; border: solid 2px black;"><div>
+
+<script>
+var canvas = document.getElementById('canvas');
+
+canvas.ondragenter = function(e) {
+	console.log('i see you dragging');
+	e.preventDefault();
+	e.stopPropogation();
+}
+
+canvas.ondragover = function(e) {
+	e.preventDefault();
+	e.stopPropogation();
+}
+
+canvas.addEventListener('drop', function(e) {
+	try {
+	//e.preventDefault();
+	//e.stopPropogation();
+	//console.log(e);
+	alert('foo');
+	} catch(er) {
+		console.log(er);
+	}
+	
+	return false;
+}, false);
+</script>
+</html>

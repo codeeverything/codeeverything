@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PHP Contractor, Bristol - Mike Timms @ CodeEverything</title>
+<style>
+	/* move me into an external CSS file */
+	body {
+		font-family: verdana;
+		color: #333;
+		background-color: #fefefe;
+		font-size: 11pt;
+		text-align: center;
+	}
+
+	body p { 
+		/**/
+	}
+
+	#content { 
+		width: 600px;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 200px;
+		text-align: left;
+		z-index: 100;
+	}
+
+	.taglineHeader {
+		color: #666;
+		text-transform: uppercase;
+		margin: 0px;
+	}
+
+	.heading, #dontSniffMe {
+		color: #7DACE8;
+	}
+
+	.heading {
+		font-size: 24pt;
+	}
+	
+	.footer {
+		font-size: 9pt;
+		clear: both;
+	}
+
+	#pageCode {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		margin: 5px;
+		border: none;
+		z-index: -1;
+		font-size: 8pt;
+		overflow: hidden;
+		text-align: left;
+		color: #ddd;
+	}
+
+	#firstPara {
+		border-left: solid 5px #81D69C; 
+		padding-left:5px;
+	}
+</style>
+</head>
+<body>
+
+<div id="pageCode" readonly></div>
+<div id="content">
+	<span class="heading">codeeverthing.com</span><br/>
+	<h1 class="taglineHeader">bristol based php contractor</h1>
+	<p>
+	Key Skills: PHP, MVC, OOP, SQL Server, MySQL, ORM, Backbase, JavaScript, Smarty, Apache, AGILE/SCRUM
+	</p>
+	<p id="firstPara">
+	Hi, I'm Mike, a contract web developer focused primarily on PHP and JavaScript based in Bristol, UK. I'm passionate about technology, in particular the web and mobile, and believe that with the right idea and enough determiniation you really can code everything ;)
+	</p>
+	<p>
+	For those looking for a contractor to help on web based projects this site will showcase my work, but on a personal level is a space for me to muse on and explore new technologies and ideas.
+	</p>
+	<p>
+	If you have a PHP contract role you would like to discuss please drop me an email at <span id="dontSniffMe"></span>.
+	</p>
+	<hr/>
+	<p>
+		<div style="float:right;">
+			<a href="CV.docx" style="text-decoration: none; color: black;">
+			<img src="docx.png" width="48" height="48" border="0"/><br/>My CV
+			</a>
+		</div>
+		<div style="float:left;">
+		<a href="http://uk.linkedin.com/in/miketimms1981">
+			<img src="https://static.licdn.com/scds/common/u/img/webpromo/btn_myprofile_160x33.png" width="160" height="33" border="0" alt="View Mike Timms's profile on LinkedIn">
+		</a>
+		</div>
+	</p>
+
+	<p class="footer">
+		&copy; 2014
+	</p>
+</div>
+
+<script type="text/javascript">
+	//replace this with a JQuery document.ready() call
+	(function (name, dom, tld) {
+		document.getElementById('dontSniffMe').innerHTML = name + '@' + dom + '.' + tld;
+	})('mike', 'codeeverything', 'com');
+
+	//var pCode = document.getElementById('pageCode');
+	//pCode.style.width = (document.documentElement.clientWidth - 10) + 'px';
+	//pCode.style.height = (document.documentElement.clientHeight - 10) + 'px';
+	//pCode.innerHTML = ("<!DOCTYPE html>\r\n<html>\r\n" + document.documentElement.innerHTML + "\r\n</html>").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br/>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+</script>
+
+</body>
+</html>

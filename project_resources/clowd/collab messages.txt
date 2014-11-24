@@ -1,0 +1,14 @@
+Collab Messages Process
+
+User hits key
+this stores the keystroke in a userkeybuffer. we also start a timer set for a defined delay
+if another keystroke occurs we reset the delay and wait the time again adding the new key press to the buffer, unless we hit a buffer size, or if the action that would occur is different to the previous action (for example you may be inserting characters and then hit delete, a removal of characters)
+if nothing else is pressed then we fire the timer which sends the buffer to the server to be processed
+
+The Buffer
+buffer = {
+	action: insert|delete,
+	keybuffer: [
+		{x: Z, y: Y, char: C}
+	]
+}

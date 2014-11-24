@@ -1,0 +1,36 @@
+<html>
+<body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+
+<div id="testel"></div>
+
+<input type="button" id="jquery" value="JQuery"/>
+<input type="button" id="basic" value="Basic"/>
+<div id="output"></div>
+
+<script>
+document.getElementById('jquery').onclick = function() {
+	var i = 0;
+	var el = null;
+	for(i=0;i<10000;i++) {
+		el = $('#testel');
+	}
+
+	document.getElementById('output').innerHTML = 'JQuery Done';
+}
+
+document.getElementById('basic').onclick = function() {
+	var i = 0;
+	var el = null;
+	for(i=0;i<10000;i++) {
+		el = document.getElementById('testel');
+	}
+
+	document.getElementById('output').innerHTML = 'Basic Done';
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+<html>
+
+<input type="text" id="typer" value=""/>
+<div id="output"></div>
+<script>
+	var testString = 'var foo = bar;	//this is a test string';
+	var index = 12
+	var out = document.getElementById('output');
+	
+	var typer = document.getElementById('typer');
+	typer.value = testString;
+	typer.onkeydown = function(e) {
+		out.innerHTML = typer.value.split('').splice(index, 0, String.fromCharCode(e.charCode)).join('');
+		index++;
+	}
+</script>
+</html>

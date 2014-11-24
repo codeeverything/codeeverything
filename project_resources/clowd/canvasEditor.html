@@ -1,0 +1,221 @@
+<html>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<style type="text/css">
+	#slider { margin: 10px; }
+</style>
+<script>
+	$(document).ready(function() {
+		var sliderVal = 50;
+		$("#slider").slider({
+			slide: function(event, ui) { 
+				if(ui.value > sliderVal) {
+			   		var data = context.getImageData(0,0,800,18*39);
+			    		context.putImageData(data, 0, 18);
+			    	} else {
+			    		var data = context.getImageData(0,18,800,18*40);
+					context.putImageData(data, 0, 0);
+			    	}
+				
+				sliderVal = ui.value;
+			},
+			max:100,
+			min:0,
+			value:50
+		});
+	});
+</script>
+<style>
+	body {margin:0px;)
+	.lineNumber {color:#F2C911; font-weight:bold;}
+	.keyword {color:#06ACC2;}
+	.keyword:hover {font-weight:bold; cursor:hand;}
+	.string {color:#06C248;}
+	.comment {color:#AAAAAA;}
+	
+	.htmltag {color:yellow;}
+</style>
+
+<canvas id="canvas" style="border:solid black 2px; cursor:text; background-color:#444444;" width="1240" height="600"></canvas>
+
+<input type="button" id="parse" value="Parse Mixed HTML"/>
+<input type="button" id="parseJS" value="Parse JS"/>
+<input type="button" id="render" value="render"/>
+<input type="button" id="moveup" value="Move Up"/>
+<input type="button" id="charat" value="Test charAt"/>
+<input type="button" id="string" value="Test String Array"/>
+
+<textarea id="text" cols="50" rows="10" style="width:100%"></textarea>
+
+<div id="slider"></div>
+  
+<div id="variables" style="position:fixed; width:200px;right:0; top:0; height:800px; background-color:#eeeeee; z-index:1990;">
+Variables
+</div>
+<div id="curLine" style="position:fixed; width:100%; bottom:0; height:25px; background-color:#eeeeee; border-top:solid 2px yellow;z-index:1990;">
+Text Current Line: 
+</div>
+
+<script type="text/javascript">
+
+    var renderTestTokens = [];
+    var lines = [];
+    var canvasOut = '';
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    var testLine = 1;
+    
+    context.textBaseline = "top";
+    context.font = "11pt monospace";
+    context.clearRect(0,0,800,800);
+    
+    document.getElementById('parse').onclick = function() {   	
+    	tokens = HTMLParse(document.getElementById('text').value, false);
+    	
+    	drawCode(tokens);
+    }
+    
+    
+    document.getElementById('parseJS').onclick = function() {   	
+    	tokens = JSParse(document.getElementById('text').value, false);
+    	
+    	renderTestTokens = tokens;
+    	//drawCode(tokens);
+    }
+    
+    document.getElementById('render').onclick = function() {   	
+    	drawCode(renderTestTokens, null, testLine);
+    }
+    
+    document.onkeydown = function(e) {
+    	context.clearRect(cursorPos[0], cursorPos[1], 1, 18);
+    	
+	//if(chPos > 0) {
+		//console.log('Typing: '+chr);
+		var chr = String.fromCharCode(e.which).toLowerCase();
+		var oldLine = lines[chLine];
+		
+		if(e.keyCode == 8 || e.keyCode == 37) {
+			lines[chLine] = oldLine.substring(0, chPos-1)+oldLine.substring(chPos);
+			retreatCursor();
+		} else if(e.keyCode == 38) {
+			//move up a line
+			//liftCursor();
+			var data = context.getImageData(0,18,800,18*(testLine-1));
+		    	context.putImageData(data, 0, 0);
+		    	//console.log(lines[30]);
+		    	var tokens = JSParse('a test line of "code"');
+		    	drawCode(tokens, 1, testLine);
+		    	testLine++;
+			return;
+		} else if(e.keyCode == 40) {
+			//move down a line
+			var data = context.getImageData(0,0,800,18*(testLine+1));
+		    	context.putImageData(data, 0, 18);
+		    	var tokens = JSParse('a test line of "code"');
+		    	drawCode(tokens, 1, testLine);
+		    	testLine--;
+		    	return;
+			dropCursor();
+		} else if(e.keyCode == 13) {
+			//return
+			//set cursor to next line and back to the start
+			dropCursor();
+			resetCursor();
+			
+			//dont forget you'll need to split the line 
+			//render up to the split on the current line
+			//then the remainder on the line below
+			//re-rendering any visible lines below and possibly updating the "code window"
+		} else {
+			lines[chLine] = oldLine.substring(0, chPos)+''+(chr)+''+oldLine.substring(chPos);
+			advanceCursor();
+		}
+		
+		console.log(chPos);
+		console.log(lines[chLine]);
+		
+		context.clearRect(70, 18*chLine+1, 800, 18);
+		
+		var tokens = JSParse(lines[chLine], chLine);
+	    	drawCode(tokens, chLine);
+		
+		chPos++;
+		//chLine = line;
+	//}
+	
+	console.log(e.keyCode);
+	return false;
+    }
+    
+    document.getElementById('canvas').onmousewheel = function(e) {
+    	var delta=e.detail? e.detail*(-120) : e.wheelDelta; //check for detail first so Opera uses that instead of wheelDelta
+
+	if(delta > 0) {
+    		var data = context.getImageData(0,0,800,18*39);
+    		context.clearRect(0, 0, 800, 800);
+    		context.putImageData(data, 0, 18);
+    	} else {
+    		var data = context.getImageData(0,18,800,18*40);
+    		context.clearRect(0, 0, 800, 800);
+		context.putImageData(data, 0, 0);
+    	}
+    	
+    	canvas = null;
+    	context = null;
+    	return;
+    }
+
+    document.getElementById('canvas').onclick = function(e) {
+    	var x = e.clientX - document.getElementById('canvas').offsetLeft;
+    	var y = e.clientY - document.getElementById('canvas').offsetTop;
+    	
+
+    	var line = y/18;
+    	line = parseInt(line.toFixed(0));
+    	if(line < 0) line += 4;
+    	else line--;
+
+    	var ch = x - document.getElementById('canvas').offsetLeft;
+    	
+    	console.log('Line '+(line)+':'+lines[line-1]);
+    	context.clearRect(cursorPos[0], cursorPos[1], 1, 18);
+    	context.clearRect(70, 18*line, 800, 18);
+    	
+    	var tokens = JSParse(lines[line-1]);
+    	drawCode(tokens, line-1);
+    	
+    	
+    	
+    	document.getElementById('curLine').innerHTML = lines[line-1];
+    	
+    	var mwidth = context.measureText('m').width;
+    	for(var c=0; c<lines[line].length; c++) {
+    		//if((context.measureText(lines[line].substring(0, c)).width+10) > x) {
+    		if((mwidth*c)+80 > x) {
+    			console.log('Guess2: '+lines[line][c-1]);
+    			
+    			//var xpos = (context.measureText(lines[line].substring(0, c-1)).width);
+    			var xpos = (mwidth*(c+1))+60;
+    			context.fillStyle = '#06ACC2';
+    			context.fillRect(xpos, 18*line, 1, 18);
+    			cursorPos = [xpos, 18*line];
+    			
+    			chPos = c;
+    			chLine = line-1;
+    			
+    			break;
+    		}
+    	}
+    }
+    
+    document.getElementById('moveup').onclick = function() {
+    	var data = context.getImageData(0,18,800,18*40);
+    	context.putImageData(data, 0, 0);
+    	console.log(lines[30]);
+    	var tokens = JSParse(lines[30]);
+    	drawCode(tokens, 1, 30);
+    }
+</script>
+</html>

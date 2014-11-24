@@ -1,0 +1,132 @@
+body {
+    background-color: #fefefe;
+    text-align: center;
+}
+
+
+
+#container {
+    text-align:left;
+    width: 60em;
+    margin-top: 1.5em /* 200px / 16px */;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#content {
+    width: 37.5em /* 600px / 16px */;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    z-index: 100;
+    max-width:90%;
+    float: right;
+}
+
+.taglineHeader {
+    color: #666;
+    text-transform: uppercase;
+    margin: 0px;
+}
+
+
+.heading {
+    font-size: 2em /* 32 / 16 */;
+}
+
+.footer {
+    text-align:right;
+    clear:both;
+    color: #fff;
+    background-color: #4B77BD;
+    padding: 5px;
+    padding-right: 5em;
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+}
+
+#header {
+    width: 100%;
+    color: #4B77BD;
+    border-bottom: solid 2px #4B77BD;
+    font-size: 3em;
+    padding-top: 3em;
+    margin-botton: 1em;
+}
+
+#bigInnerHeader {
+    color: #4B77BD;
+    font-size: 1em;
+    width: 30em;
+    text-transform: uppercase;
+    text-align: right;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#innerHeader {
+    width: 60em;
+    font-size: 0.5em;
+    text-transform: uppercase;
+    text-align: right;
+    color: #7DACE8;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.footer a {
+    color: #fff;
+}
+
+#nav {
+    text-align: left;
+    width: 20em;
+    border-right: solid #DDD 1px;
+    margin-right: 1em;
+    display:inline-block;
+}
+
+ul.list-no-bullets {
+    list-style-type: none;
+}
+
+.available {
+    color: #81D69C;
+    font-weight: bold;
+}
+
+
+.codesnippet {
+    background-color: #DDD;
+    color: #4B77BD;
+    padding: 2px;
+}
+
+
+.directive {
+    background-color: #DCEBF5;
+    color: #000;
+    padding: 10px;
+}
+
+/* helpHint stuff */
+.helpHint {
+    position:absolute;
+    z-index: 1000;
+    background-color: #4B77BD;
+    padding: 1em;
+}
+
+.helpHint, .helpHint a {
+    color: #fff;
+}
+
+.helpHint a {
+    text-decoration: underline;
+}
+
+.helpHint p:first-child  {
+    font-weight: bold;
+}

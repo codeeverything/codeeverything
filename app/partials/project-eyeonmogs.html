@@ -1,0 +1,121 @@
+<h1>Eye On MOGS</h1>
+
+<p>
+    Key skills: Symfony 2, Doctrine 2, Angular JS, XPath, HTML, CSS
+</p>
+
+<h3>Access</h3>
+<p>
+    The site is not complete, but you can access a workable version at <a href="http://www.eyeonmogs.com" target="_blank">http://www.eyeonmogs.com</a>, with password "l3tm31nXyZ!". I will be continuing to develop the
+    site and flesh out the data it contains.
+</p>
+
+<h3>Summary</h3>
+<p>
+    Eye On MOGS is an old property of mine (you can see it on my <a href="CV.docx">CV</a> and <a href="https://www.linkedin.com/in/miketimms1981" target="_blank">LinkedIn profile</a>), which I have decided to re-engineer using some newer technologies available.
+</p>
+<p>
+    This has been a great opportunity to work with the Symfony 2 framework, Doctrine ORM and Angular JS.
+</p>
+
+
+<h3>In Detail</h3>
+<p>Eye on MOGS is a price comparison engine, it's market being the sale of virtual currency within video games for real money.</p>
+<p>
+    As such it needs two main components: 1) a crawler to find products and prices and 2) a front-end to allow users to query the data found.
+</p>
+
+<h4>Frameworks</h4>
+
+<p>
+    When rewriting Eye On MOGS I wanted to use current frameworks as my starting point. I chose the popular Symfony 2 framework for the back-end as this provided a solid foundation
+    and also comes packaged with the Doctrine 2 ORM for database operations and Twig for templating.
+</p>
+<p>
+    On the front end I chose Angular JS to bring MVC to the front-end, which worked very well as the main inputs/outputs are dropdowns whose options depend on the value in the dropdown prior
+    and a table of results which should be refreshed with data from the server when enough detail has been gathered in the dropdowns to complete a search.
+</p>
+<p>
+    Once a search is complete it is then possible to drill down for any results where the same product can be found via multiple providers. Angular's routing made it easy to turn Eye On MOGS
+    into a SPA, simply querying the server and changing the view for when given a route that specifies a product.
+</p>
+
+<p>
+    <i><b>Issues</b></i>
+</p>
+<p>
+    One issue I came across using these two frameworks together was that both Twig (the template engine included with Symfony) and Angular JS use the same syntax for 
+    variables in templates - <span class="codesnippet">{{var}}</span>
+</p>
+<p>
+    There were a number of possible workarounds, including using the Twig {% verbatim %} tag around any Angular expressions or to pass the Angular expression as a string within the Twig variable, i.e.
+    <span class="codesnippet">{{ '{{angular_var}}' }}</span>.
+</p>
+<p>
+    I opted to change the characters used by Angular however as I am not reliant on any third party plugins which this could have caused issues with, and it kept the HTML looking neat.
+    Using the InterpolateProvider I was able to change the syntax from <span class="codesnippet">{{var}}</span> to <span class="codesnippet">{[{var}]}</span> and avoid the conflict.
+</p>
+
+<h4>Caching</h4>
+
+<p>
+    Since the data in Eye On MOGS refreshes with a known frequency (every 12 hours), I leveraged Symfony's HTTP Reverse Proxy Cache to improve general performance and UX.
+</p>
+
+<p>
+    To speed up loading of data into the search dropdowns I also propose to write a server-side caching process that outputs JSON representations of the possible values for each dropdown so
+    these can be statically served (possibly via NGINX rather than Apache), as there is a little too much delay when loading these lists. This cache will be invalidated and regenerated when
+    any create update or delete changes are made to any of the entities Game, Realm, Server or Faction.
+</p>
+
+<h4>Entites and Models</h4>
+<p>
+    For the purposes of this project I drew a line between an Entity and a Model. In Eye On MOGS an Entity is an object that maps directly to a database table, whereas a Model is an object
+    that doesn't but which may make use of entities for this purpose.
+</p>
+<p>
+    The best examples of this distinction are the Crawler and Extractor(s), which are responsible for crawling specified. URLs and extracting product data into an intermediary store before then
+    pushing this data into the database in a final step. Neither directly map to anything in the database, they perform business logic if you will and call upon the entities within the system to
+    deal with data manipulation. The Crawler, for example, calls upon the CrawlerData entity to establish and persist it's state.
+</p>
+
+
+<h4>Entity Definition</h4>
+
+<p>
+    <ul>
+        <li>Game</li>
+        <li>Realm</li>
+        <li>Server</li>
+        <li>Faction</li>
+        <li>Provider</li>
+        <li>Parser - These contain a reference to a specific Extractor model</li>
+        <li>URL</li>
+        <li>Currency</li>
+        <li>CrawlerData - Meta data about a crawl. Referenced by the Crawler model</li>
+    </ul>
+</p>
+
+<h4>Model Definition</h4>
+
+<p>
+    <ul>
+        <li>Crawler - Process responsible for scheduling and downloading URLs and passing valid responses to the correct extractor</li>
+        <li>Extractor - Process expects to receive some valid HTML, which it then passes to an appropriate extractor class which queries with XPath to extract raw data,  which may then be further processed before returning to the crawler </li>
+    </ul>
+</p>
+
+<h4>Command Definition</h4>
+
+<p>
+    Symfony allows you to define "commands" which can be run from the Symfony console (php app/console [command]). In order to manage the crawling process via a Cron Job it was important
+    to have a command available. This also aided in development an testing of the crawler and extractors as I could run adhoc crawlers for specific providers, or when a crawl was not
+    scheduled to be run.
+</p>
+
+<h4>Styling</h4>
+
+<p>
+   For a quick and easy start I used the Bootstrap CSS library, which gave good results. In future I intend to continue work on the front-end and leverage Bootstrap's Grid system to provide
+    a responsive layout that works on mobile, tablet and desktop platforms. I may also swap some front-end components (for example the dropdowns), for the Bootstrap equivalents.
+</p>

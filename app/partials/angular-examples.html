@@ -1,0 +1,100 @@
+<div ng-controller="exampleCtrl">
+    <h3>Filters</h3>
+
+    <h4>Reverse Input</h4>
+    <div class="directive">
+        <input type="text" ng-model="revText"/><br/>
+        Reversed: {{revText | reverse}}
+    </div>
+
+    <h4>Initial Uppercase</h4>
+    <div class="directive">
+        <input type="text" ng-model="initialUpperText"/><br/>
+        Initial Uppercase: {{initialUpperText | initialUpper }}
+    </div>
+
+    <h4>Max Value</h4>
+    <div class="directive">
+        <input type="text" ng-model="maxValue"/><br/>
+        Max integer of 100: {{maxValue | max:100 }} <span ng-if="gtMax" style="color: red;">{{maxValue}} is > max value of 100</span><br/>
+    </div>
+
+    <h4>Humanise a Number</h4>
+
+    <p>
+        Makes numbers > 1 million friendlier to read (and approximates them).
+    </p>
+    <div class="directive">
+        <input type="text" ng-model="humaniseValue"/><br/>
+        Humanised: {{humaniseValue | humaniseNumber }}<br/>
+    </div>
+
+    <h3>Directives</h3>
+    <h4>Time</h4>
+    <p>
+        This simply outputs the current time in a fixed hh:mm:ss format and updates the value every second
+    </p>
+    <div class="directive">Time: <cron-time></cron-time></div>
+
+    <h4>Timer</h4>
+    <p>
+        This simply outputs the number of seconds that have passed since the page loaded
+    </p>
+    <div class="directive">
+        Timer: <cron-timer message="seconds"></cron-timer>
+    </div>
+
+    <h4>Password</h4>
+    <p>
+        A reusable password input with customisation options. This is limited to one instance per page as it relies on an element with an ng-form attribute and hardcoded name, along with a
+        hardcoded name for the password input. In reality you would probably include this in a form with a name anyway and only have one password input (a "Confirm password" input would
+        be subject to different rules, i.e. is it equal to the password entered, and therefore a different directive).
+    </p>
+    <div class="directive">
+        Password input:
+        <form-password name="passInput" min="6" max="12" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])" size="25" placeholder="Please enter a password">
+            <div style="font-size: 0.75em;">
+                Password should contain at least 1 letter, 1 uppercase letter and one number. It should also be between {{min}} and {{max}} characters long
+            </div>
+        </form-password>
+    </div>
+
+    <h4>Help Hints</h4>
+    <p>
+        This isn't a perfect solution, but does show the use of an isolated scope and transclusion.
+    </p>
+    <p>
+        You would probably want to pull the help content from a central repository for east maintenance (or for internationalisation),
+        rather than have the text embedded in the template. However, this implementation does make it very easy for designers to drop
+        in help without having to worry about setting it up elsewhere or how to reference it.
+    </p>
+    <div class="directive">
+        Help hints: <help-hint>
+        <p>
+            The first child is a title
+        </p>
+        <p>
+            Everything else is helpful content. Blah, blah, blah.
+        </p>
+        </help-hint>
+    </div>
+
+    <div class="directive">
+        Another help hint: <help-hint>
+        <p>
+            Help Title #2
+        </p>
+        <p>
+            Everything you need to know to use this feature...
+        </p>
+        <p>
+            <a href="">A link to more details</a>
+        </p>
+        </help-hint>
+    </div>
+
+
+
+    <br/>
+    <br/>
+</div>

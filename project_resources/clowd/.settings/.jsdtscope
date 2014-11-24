@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="development/syntax/|settings/|syntax/|development/|development/parser/|parser/" kind="src" path=""/>
+	<classpathentry excluding="syntax/|parser/" kind="src" path="development"/>
+	<classpathentry kind="src" path="development/parser"/>
+	<classpathentry kind="src" path="development/syntax"/>
+	<classpathentry kind="src" path="parser"/>
+	<classpathentry kind="src" path="settings"/>
+	<classpathentry kind="src" path="syntax"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path=""/>
+</classpath>

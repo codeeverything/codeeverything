@@ -1,0 +1,559 @@
+<html>
+<body>
+
+
+
+<input type="button" id="editorButtons" value="Detect TEXTAREAs"/>
+
+<div style="width: 600px; border: solid black 1px;">
+	<textarea id="1" style="width: 100%; height: 300px;">
+		this.loadDocument = function(fileString, fname) {
+		//alert(fileString);
+		var lines = fileString.split("\n");
+		var tab = editor.getTab();
+		var tabLength = tab.length;
+		var tokens = {
+			tabs: [],
+			addTab: function(line, startPos, size) {
+				var tabTemp = [];
+				for(var i=startPos; i<(startPos+size)-1; i++) {
+					tabTemp.push(i);
+				}
+				
+				if(!this.tabs[line]) this.tabs[line] = [];
+				this.tabs[line].push(tabTemp);	//push the array of positions into our array of tabs
+			}
+		};
+		
+		var functions = [];
+		var totalVars = [];
+		//replace a \t with the tab string to get the correct spacing when highlighting text
+		for(var i=0;i<lines.length;i++) {
+		    /*
+		    //a token array
+		    if(lines[i].indexOf("\t") != - 1) {
+		    	var offset = 0;
+		    	var c = 0;
+		    	while(c < 100 && lines[i].indexOf("\t", offset) != - 1) {
+			    	tokens.addTab(i, lines[i].indexOf("\t", offset), tabLength);
+			    	offset = lines[i].indexOf("\t", offset) + 1;
+			    	
+			    	c++;
+			}
+		    }
+		    */
+		    
+	            lines[i] = lines[i].replace(/\t/g, tab);	//would it be quicker to run this on the fileString before splitting?
+	            lines[i] = lines[i].replace(/([\r\n])+/g, ' ');	//TODO: Trying to fix the \n at end of line error. All I'm doing is replacing it with a space. Think a consolodation of the cursor and document models is what we really need
+	            if(lines[i].match(/var\s([a-zA-Z0-9])+((\s)*\=(\s)*(function|[^;]+)|;)+/g)) {
+	            	var matches = lines[i].match(/var\s([a-zA-Z0-9])+((\s)*\=(\s)*(function|[^;]+)|;)+/g);
+	            	
+	            	$.each(matches, function(i, v) {
+	            		if(v.indexOf('function') != -1) functions.push(v);
+	            		else totalVars.push(v);
+	            	});
+
+	            }
+	        }
+	        
+	        //console.log(lines);
+	        
+	        
+	        console.log('Found '+totalVars.length+' variable declarations, '+functions.length+' of which were anonymous functions');
+	        
+	        console.log("tokens: \n"+tokens.tabs);
+	        document.getElementById('edits').style.width = "200px";
+	        document.getElementById('edits').innerHTML = dump(tokens.tabs);
+	        
+	        var funcs = '';
+	        var rand = Math.floor(Math.random()*11);
+	        $.each(functions, function(i, v) {
+	        	v = v.replace('var ', '');
+	        	v = v.replace(' = function', '');
+	        	funcs += "<div class=\""+(i == rand ? 'selectedFunction':'function')+"\">&nbsp;"+v+"</div>";
+	        });
+	        
+	        document.getElementById('edits').innerHTML = funcs;
+	        
+	        
+	        this.lines = lines;	//move the local var lines to the class var
+	        this.name = fname;
+	        
+	        /*
+	        //setup the cursor
+	        var savedCursor = getSavedCursorForFile(file);	//either  the last position of the cursor if one existed, or 0,0
+	        this.cursor.setCursor(savedCursor);
+	        //setup the offset
+	        editor.setOffset(savedCursor.y);	//TODO: Does a document need to have an offset? Otherwise going between documents would retain the editor.offset and take you to the wrong position?
+	        //load the saved selection
+	        this.selection = getSavedSelectionForFile(file);
+	        */
+	        
+		//console.log(this.lines);
+	}
+	</textarea>
+	<div style="text-align: right; background-color: #111; border-top: dashed 2px #66dcdc; color: white;">
+		<a href="" style="font-size: 10pt; color: lightblue;">Set Language</a> - <a href="" style="font-size: 10pt; color: lightblue;">Save Changes</a> - <a href="" style="font-size: 10pt; color: lightblue;">Set Colors</a> - <a href="" style="font-size: 10pt; color: lightblue;">Enable/Disable Editor</a>	
+	</div>
+</div>
+<textarea id="2"></textarea>
+<textarea id="3"></textarea>
+<textarea id="4"></textarea>
+
+
+<textarea id="typer" cols="50" rows="20" style="display:none;">
+var foo; //boo - something
+</textarea>
+
+<!--<img src="mrt.png" style="position:fixed; right:0px; bottom:0px; opacity:0.5;"/>-->
+
+
+
+<div id="menu" style="background-color:black; color:white; text-align:right; padding-right:20px; padding-top:5px">
+	<ul id="jsddm">
+	    <li><a href="#">File</a>
+	        <ul>
+	            <li><a href="#" id="newfile">New File</a></li>
+	            <li><a href="#" id="load">Open File</a></li>
+	            <li><a href="#">Save File</a></li>
+	            <li><a href="#">Save File As...</a></li>
+	            <li><a href="#" id="closefile">Close</a></li>
+	        </ul>
+	    </li>
+	    <li><a href="#">Edit</a>
+	        <ul>
+	            <li><a href="#">Cut</a></li>
+	            <li><a href="#">Copy</a></li>
+	            <li><a href="#">Paste</a></li>
+	            <li><a href="#">---</a></li>
+	            <li><a href="#">Select All</a></li>
+	            <li><a href="#">---</a></li>
+	            <li><a href="#" id="find">Find</a></li>
+	            <li><a href="#">Replace</a></li>
+	            <li><a href="#" id="goto">Goto Line</a></li>
+	        </ul>
+	    </li>
+	    <li><a href="#">Tools</a>
+	    	<ul>
+	            <li><a href="#" id="forceRender">Force Render</a></li>
+	            <li><a href="#" id="rendermode">Render Mode</a></li>
+	            <li><a href="#" id="todos">Get Todos</a></li>
+	            <li><a href="#" id="includefile">Include File</a></li>
+	            <li><a href="#" id="xscroll">XScroll</a></li>
+	            <li><a href="#" id="listen">Listen</a></li>
+	            <li><a href="#" id="deafen">Deafen</a></li>
+	        </ul>
+	    </li>
+	    <li><a href="#">About</a></li>
+	</ul>
+	<img src="circularicons/new.png"/>
+	<img src="circularicons/folder_open.png"/>
+</div>
+
+<table width="100%" border="0" cellspacing="0">
+	<tr>
+		<td style="background-color:#111111;"><input type="text" value="CTRL-SHIFT-F to search for open files, files in the project and any you have access to on the system" style="color:silver;"/></td>
+		<td style="background-color:#111111;" width="100%">
+			<div id="openfiles" style="padding:5px; background-color:#111111; color: white;">
+				<span class="tab" style="">
+					test_file.js&nbsp;&nbsp;<span class="circle">&nbsp;x&nbsp;</span>
+				</span>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<!--
+<div id="interactions" style="position: fixed; bottom: 0px; background-color:#dddddd; display:none;">
+	
+	
+	<div id="braces"></div>
+	
+	<input type="button" id="xscroll" value="XSCROLL"/>
+	<input type="button" id="goto" value="GOTO"/>
+	<input type="file" id="load" value="Load File"/>
+	<input type="button" id="rendermode" value="Render Mode"/>
+	
+	<input type="button" id="includefile" value="Include File"/>
+	
+	<input type="button" id="find" value="Find"/>
+	
+	<input type="button" id="forceRender" value="Force Render"/>
+	
+	<input type="file" id="fileElem" multiple style="display:inline" onchange="handleFiles(this.files)">
+	<a href="#" id="fileSelect">Select some files</a> 
+	<div id="fileList">
+	  <p>No files selected!</p>
+	</div>
+	
+	<input type="button" id="listen" value="Listen"/>
+	<input type="button" id="deafen" value="Deafen"/>
+		
+	
+</div>
+-->
+
+<input type="file" id="fileElem" multiple style="visibility:hidden; width:0px; height:0px;" onchange="">
+
+<div id="saved" style="padding:100px; background-color:lightyellow; color:black; position:fixed; top:30%; left:30%; font-size:48pt; font-weight:bold; display:none; text-align:center;">
+	SAVED
+</div>
+
+<div id="copytext" style="padding:100px; background-color:lightyellow; color:black; position:fixed; top:30%; left:30%; font-size:48pt; font-weight:bold; display:none; text-align:center;">
+	EDIT: COPY<br/>
+	<span style="font-size: 11pt;">Hitting CTRL-SHIFT-C will append to your last copy</span>
+</div>
+
+<div id="pastetext" style="padding:10px; background-color:lightyellow; color:black; position:fixed; bottom:5%; left:30%; font-size:14pt; font-weight:bold; display:none; text-align:center;">
+	EDIT: PASTE<br/>
+	<span style="font-size: 11pt;">Hitting CTRL-V rapidly will cycle forward through your clipboard history. CTRL-SHIFT-V will cycle backwards</span>
+</div>
+
+<div id="findreplace" style="padding:5px; background-color:#ccc; color:black; position:fixed; bottom:0; left:0; font-size:10pt; display:none; width: 100%;">
+	<input type="button" id="findbutton" value="Find First"/><input type="button" id="findnextbutton" value="Next"/><input type="button" id="findprevbutton" value="Previous"/><input type="button" value="Replace"/><input type="button" value="Replace All"/>
+	<input type="button" value="Count" id="findcountbutton"/>
+	<input type="checkbox" id="findhighlight"/> Highlight results, <input type="checkbox"/> Case Insensitive
+	<input type="button" id="closefindreplace" value="Close"/>
+	<br/>
+	<table style="width:100%;">
+		<tr>
+			<td>Find: </td>
+			<td style="width:100%;"><textarea id="findinput" style="width:100%;"></textarea></td>
+		</tr>
+		<tr>
+			<td>Replace with:</td>
+			<td style="width:100%;"><textarea id="replaceinput" style="width:100%;"></textarea></td>
+		</tr>
+	</table>
+</div>
+
+<div id="" style="padding:2px; background-color:#ededed; color:black; position:fixed; bottom:0px; right:20px; font-family: verdana; font-size:8pt; font-weight:bold; text-align:center;">
+	<a href="">Send Feedback/Report Bug</a> - Clowd alpha 0.dev &copy; 2011 Mike Timms
+</div>
+
+
+<div id="fileDetail" style="background-color:#111111; color:white; position: fixed; bottom: 0px;">FILE DETAIL</div>
+
+<div id="preview"></div>
+
+<canvas width="50" height="500" id="lineCanvas" style="background-color:#dddddd; float:left;"></canvas>
+<canvas width="800" height="500" id="canvas" style="background-color:#ffffff; float:left;"></canvas>
+
+<div id="findReplace" style="position:fixed; bottom:0px; background-color:#efefef; border-top:solid black 3px; overflow:auto; height:100px; width: 100%; display:none;">
+	
+</div>
+
+<textarea id="clipboard" cols="50" rows="20" style="position: fixed; bottom: 0px; display:none;"></textarea>
+
+<style>
+    #contextMenu {font-family: verdana; font-size: 10pt; background-color:#fefefe; border-top:solid 2px #ccc; border-left:solid 2px #ccc; border-right:solid 2px #888; border-bottom:solid 2px #888; padding:3px;}
+    #contextMenu a {display:block; color:#111; text-decoration:none; padding:0px 32px 0px 16px;}
+    #contextMenu a:hover {background-color:#4B6343; color: #fff;}
+    
+    #contextMenu a.inactive { color: #AAA; }
+    #contextMenu a.inactive:hover { color: #AAA; }
+    
+    body { 
+    	margin: 0px; 
+    	overflow: hidden;	/* this is hack so that even if the canvas is too big to fit we don't get scrollbars */	
+    }
+</style>
+
+<style>
+	.circle {
+		width: 160px;
+		height: 14px;
+		background: #777;
+		color: #fff;
+	}
+	
+	.circle:hover {
+		background: #AD1D1D;
+	}
+	
+	.tab {
+		background-color: #333; 
+		color: #fff; 
+		font-family: verdana; 
+		font-size: 10pt; 
+		padding: 4px; 
+		cursor: pointer; 
+		margin-right: 3px;
+	}
+	
+	.tab:hover {
+		background-color: #555;
+	}
+	
+	.tabSelected {
+		background-color: #555;
+		color: #84B7E0;
+	}
+	
+	.selectedFunction {
+		padding: 3px;
+		background-color: #4B6343;
+		font-family: verdana;
+		font-size: 10pt;
+		cursor: pointer;
+	}
+	
+	.function {
+		font-family: verdana;
+		font-size: 10pt;
+		cursor: pointer;
+	}
+</style>
+
+<div id="contextMenu" style="position:absolute;display:none;">
+    <a href="">Close Document</a>
+    <a href="" id="">Save Document</a>
+    <a href="" class="inactive">Save Document As...</a>
+    
+    <hr/>
+    
+    <a href="">Undo</a>
+    <a href="" id="">Redo</a>
+    
+    <hr/>
+    
+    <a href="">Cut</a>
+    <a href="" id="contextcopy">Copy</a>
+    <a href="">Paste</a>
+    <a href="" id="selectAll">Select All</a>
+    
+    <!--<hr/>
+    
+    <span style="color:#111;">Paste Board</span><br/>
+    <a href="">#1: $bob = "var"...</a>
+    <a href="">#2: function foo()...</a>
+    <a href="">#3: var a = b?b:c;...var c = true;</a>-->
+    
+    <hr/>
+    
+    <a href="" id="toggleComment">Toggle Comment</a>
+    <!--<a href="" id="">Describe this Variable</a>-->
+    
+    <hr/>
+    
+    <a href="" id="addTodo">Add "TODO" item</a>
+    <!--<a href="">Add Unit Test</a>-->
+    
+    <hr/>
+    
+    <a href="" id="editFileGroups">Edit File's Groups</a>
+    
+    <!--<hr/>
+    
+    <a href="">Export to External File</a>
+
+    <a href="" id="addlibrary">Add Library (e.g. JQuery, Dojo)</a>-->
+    <!-- this would pull from known locations and give verions plus have an option to create a local instance of this resource 
+    as an idea these options might popup when you're specifying the source of a script tag
+    -->
+
+</div>
+
+
+
+<style>
+    .file, .dir {color:white;}
+    
+    #jsddm
+{	margin: 0;
+	padding: 0}
+	
+	#jsddm li
+	{	float: left;
+		list-style: none;
+		font: 12px Tahoma, Arial;
+		text-align: left;
+	}
+
+	#jsddm li a
+	{	display: block;
+		background: #000;
+		padding: 5px 12px;
+		text-decoration: none;
+		border-right: 1px solid white;
+		/*width: 70px;*/
+		color: #EAFFED;
+		white-space: nowrap}
+
+	#jsddm li a:hover
+	{	background: #444444}
+		
+		#jsddm li ul
+		{	margin: 0;
+			padding: 0;
+			position: absolute;
+			visibility: hidden;
+			border-top: 1px solid white}
+		
+		#jsddm li ul li
+		{	float: none;
+			display: inline}
+		
+		#jsddm li ul li a
+		{	width: auto;
+			background: #222}
+		
+		#jsddm li ul li a:hover
+		{	background: #444}
+</style>
+
+
+<div id="filepanel" style="position:fixed; right:0px; top:50px; padding:10px; background-color:#111111; display: none;"></div>
+
+<div id="edits" style="position:fixed; right:0px; top:50px; padding:10px; background-color:#111111; color: white; overflow: auto; height: 600px; display:none;"></div>
+
+<div id="verticalScroll" style="position:fixed; background-color:#aaaaaa; color: white; overflow: auto; height: 600px; width:15px">
+	<div id="verticalScrollHandle" style="position: relative; background-color:#666666; color: white; height: 15; width:15px"></div>
+</div>
+
+
+<script>
+
+	function dump(arr, level){
+		var dumped_text = "";
+		if(!level) level = 0;
+		
+		//The padding given at the beginning of the line.
+		var level_padding = "";
+		for(var j=0;j<level+1;j++) level_padding += "&nbsp;&nbsp;&nbsp;&nbsp;";
+		
+		if(typeof(arr) == 'object') { //Array/Hashes/Objects 
+			for(var item in arr) {
+				var value = arr[item];
+				
+				if(typeof(value) == 'object') { //If it is an array,
+					dumped_text += level_padding + "'" + item + "' ...<br/>";
+					dumped_text += dump(value,level+1);
+				} else {
+					dumped_text += level_padding + "'" + item + "' => \"" + value + "\"<br/>";
+				}
+			}
+		} else { //Stings/Chars/Numbers etc.
+			dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+		}
+		return dumped_text;
+	}
+
+	var id = function(el) {
+		return document.getElementById(el);
+	}
+
+	id('editorButtons').onclick = function() {
+		console.log('foo');
+		
+		//import all our required JS files
+		scripts = ["jquery-1.3.2.min.js","keyboard2011.js","settings/keybindings.js","Utils.js","EventHandler.js","cursor.js","textSelection.js","document.js","syntax.js","syntax/php_parse.js","syntax/jsparse.js","syntax/htmlparse.js","syntax/textparse.js","editor.js"];
+
+		for(var i=0; i<scripts.length; i++) {
+			var script = document.createElement('script');
+			script.setAttribute('src', 'http://localhost/clowd/'+scripts[i]+'?'+(new Date()).getTime());
+			document.body.appendChild(script);
+		}
+
+		var list = document.getElementsByTagName('textarea');
+		console.log(list);
+		for(var i=0; i<list.length; i++) {
+			console.log(list[i]);
+			
+			var editorPane = document.createElement('span');
+			editorPane.setAttribute('width', list[i].offsetWidth+100);
+			list[i].parentNode.insertBefore(editorPane, list[i].nextSibling);
+			
+			editorPane.appendChild(list[i]);
+			
+			var toolbar = document.createElement('div');
+			toolbar.setAttribute('style', 'text-align: right; font-size: 10pt;');
+			editorPane.appendChild(toolbar);
+			
+			var link = document.createElement('a');
+			link.setAttribute('id', 'random');
+			link.setAttribute('editorID', list[i].id);
+			var text = document.createTextNode("Enable Editor");
+			link.appendChild(text);
+			
+			toolbar.appendChild(link);
+			
+			var id = list[i].id;
+			(function(id, editorPane) {
+				link.onclick = function() {
+					//alert(id);					
+					var el = document.getElementById(id);
+					
+					//alert([$(el).width(),$(el).height()]);
+					
+					
+					
+					//editorPane.setAttribute('width', $(el).width());
+					//editorPane.setAttribute('height', $(el).height());
+					
+					var lineCanvas = document.createElement('canvas');
+					lineCanvas.setAttribute('id', 'lineCanvas');
+					lineCanvas.setAttribute('style', 'position: relative; display:none;');
+					lineCanvas.setAttribute('width', 1);
+					
+					var canvas = document.createElement('canvas');
+					canvas.setAttribute('style', 'position: relative;');
+					
+					el.style.display = 'none';
+					
+					editorPane.appendChild(lineCanvas);
+					editorPane.appendChild(canvas);
+					
+					/*var handle = document.createElement('div');
+					handle.setAttribute('style', "background-color:red; width: 15px; height: 15px; position: relative; left: 100px; top:100px;");
+					handle.setAttribute('height', 15);
+					handle.setAttribute('width', 15);
+					var text = document.createTextNode("hriohro");
+					handle.appendChild(text);
+					
+					editorPane.appendChild(handle);
+					*/
+			                
+			                console.log($(el).width());
+					
+					var editor = new Editor(canvas, {
+						width: $(el).width(),
+						height: $(el).height(),
+						font: '11pt monospace',
+						canvasColor: '#111',
+						currentLineHighlight: '#333',
+						cursorColor: '#dcd8b5',
+						style: {
+					    		syntax: {
+						    		'JS': {
+									'keyword':'#53AAB0',
+									'string':'#33648F',
+									'comment':'#5B8F33',
+									'text':'#fff',
+									'ops':'#9CF25A'
+								}
+							}  
+						} 
+					});
+					
+					console.log(el.value);
+					editor.loadFileFromString(el.value);
+					//editor.loadFile('editor.js');
+					
+				}	
+			})(list[i].id, editorPane);
+			
+			/*
+			try {
+				list[i].parentNode.insertBefore(link, list[i].nextSibling);
+			} catch(e) {
+				console.log(e);
+			}
+			*/	
+		}
+
+	}
+
+</script>
+</body>
+</html>

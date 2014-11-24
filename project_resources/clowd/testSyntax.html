@@ -1,0 +1,1921 @@
+<html>
+<body margin="0">
+<script src="jquery-1.3.2.min.js"></script>
+
+<script> var foo = "bar"; //comment </script>
+
+
+<textarea id="typer" cols="50" rows="20" style="display:none;">
+var foo; //boo - something
+</textarea>
+
+<!--<img src="mrt.png" style="position:fixed; right:0px; bottom:0px; opacity:0.5;"/>-->
+
+
+
+<div id="menu" style="background-color:black; color:white; text-align:right; padding-right:20px; padding-top:5px">
+	<ul id="jsddm">
+	    <li><a href="#">File</a>
+	        <ul>
+	            <li><a href="#" id="load">Open File</a></li>
+	            <li><a href="#">Save File</a></li>
+	            <li><a href="#">Save File As...</a></li>
+	        </ul>
+	    </li>
+	    <li><a href="#">Edit</a>
+	        <ul>
+	            <li><a href="#">Cut</a></li>
+	            <li><a href="#">Copy</a></li>
+	            <li><a href="#">Paste</a></li>
+	            <li><a href="#">---</a></li>
+	            <li><a href="#">Select All</a></li>
+	            <li><a href="#">---</a></li>
+	            <li><a href="#" id="find">Find</a></li>
+	            <li><a href="#">Replace</a></li>
+	            <li><a href="#" id="goto">Goto Line</a></li>
+	        </ul>
+	    </li>
+	    <li><a href="#">Tools</a>
+	    	<ul>
+	            <li><a href="#" id="forceRender">Force Render</a></li>
+	            <li><a href="#" id="rendermode">Render Mode</a></li>
+	            <li><a href="#" id="includefile">Include File</a></li>
+	            <li><a href="#" id="xscroll">XScroll</a></li>
+	            <li><a href="#" id="listen">Listen</a></li>
+	            <li><a href="#" id="deafen">Deafen</a></li>
+	        </ul>
+	    </li>
+	    <li><a href="#">About</a></li>
+	</ul>
+	<img src="circularicons/new.png"/>
+	<img src="circularicons/folder_open.png"/>
+</div>
+
+<div id="openfiles" style="padding:5px; background-color:#111111; color: white;"><input type="text" value="Type filename here" style="color:silver;"/></div>
+
+<!--
+<div id="interactions" style="position: fixed; bottom: 0px; background-color:#dddddd; display:none;">
+	
+	
+	<div id="braces"></div>
+	
+	<input type="button" id="xscroll" value="XSCROLL"/>
+	<input type="button" id="goto" value="GOTO"/>
+	<input type="file" id="load" value="Load File"/>
+	<input type="button" id="rendermode" value="Render Mode"/>
+	
+	<input type="button" id="includefile" value="Include File"/>
+	
+	<input type="button" id="find" value="Find"/>
+	
+	<input type="button" id="forceRender" value="Force Render"/>
+	
+	<input type="file" id="fileElem" multiple style="display:inline" onchange="handleFiles(this.files)">
+	<a href="#" id="fileSelect">Select some files</a> 
+	<div id="fileList">
+	  <p>No files selected!</p>
+	</div>
+	
+	<input type="button" id="listen" value="Listen"/>
+	<input type="button" id="deafen" value="Deafen"/>
+		
+	
+</div>
+-->
+
+<div id="saved" style="padding:100px; background-color:lightyellow; color:black; position:fixed; top:30%; left:30%; font-size:48pt; font-weight:bold; display:none;">
+	SAVED</div>
+
+<div id="fileDetail" style="background-color:#111111; color:white; position: fixed; bottom: 0px;">FILE DETAIL</div>
+
+<div id="preview"></div>
+
+<canvas width="50" height="500" id="lineCanvas" style="background-color:#dddddd; float:left;"></canvas>
+<canvas width="800" height="500" id="canvas" style="background-color:#ffffff; float:left; border: solid black 1px;"></canvas>
+
+<div id="findReplace" style="position:fixed; bottom:0px; background-color:#efefef; border-top:solid black 3px; overflow:auto; height:100px; width: 100%; display:none;">
+
+</div>
+
+<textarea id="clipboard" cols="50" rows="20" style="display:none;"></textarea>
+
+<style>
+    #contextMenu {background-color:#444444; border:solid 1px yellow; padding:3px;}
+    #contextMenu a {display:block; color:#dddddd; text-decoration:none; padding:0px 32px 0px 16px;}
+    #contextMenu a:hover {background-color:rgba(200,200,200,0.5);}
+    
+    body { margin: 0px; }
+</style>
+
+<div id="contextMenu" style="position:absolute;display:none;">
+    <a href="">Cut</a>
+    <a href="">Copy</a>
+    <a href="">Paste</a>
+    <a href="" id="selectAll">Select All</a>
+    
+    <hr/>
+    
+    <span style="color:#dddddd;">Paste Board</span><br/>
+    <a href="">#1: $bob = "var"...</a>
+    <a href="">#2: function foo()...</a>
+    <a href="">#3: var a = b?b:c;...var c = true;</a>
+    
+    <hr/>
+    
+    <a href="" id="toggleComment">Toggle Comment</a>
+    <a href="" id="toggleComment">Describe this Variable</a>
+    
+    <hr/>
+    
+    <a href="" id="addTodo">Add TODO</a>
+    <a href="">Add Unit Test</a>
+    
+    <hr/>
+    
+    <a href="">Export to External File</a>
+
+    <a href="" id="addlibrary">Add Library (e.g. JQuery, Dojo)</a>
+    <!-- this would pull from known locations and give verions plus have an option to create a local instance of this resource 
+    as an idea these options might popup when you're specifying the source of a script tag
+    -->
+
+</div>
+
+
+
+<style>
+    .file, .dir {color:white;}
+    
+    #jsddm
+{	margin: 0;
+	padding: 0}
+	
+	#jsddm li
+	{	float: left;
+		list-style: none;
+		font: 12px Tahoma, Arial;
+		text-align: left;
+	}
+
+	#jsddm li a
+	{	display: block;
+		background: #000;
+		padding: 5px 12px;
+		text-decoration: none;
+		border-right: 1px solid white;
+		/*width: 70px;*/
+		color: #EAFFED;
+		white-space: nowrap}
+
+	#jsddm li a:hover
+	{	background: #444444}
+		
+		#jsddm li ul
+		{	margin: 0;
+			padding: 0;
+			position: absolute;
+			visibility: hidden;
+			border-top: 1px solid white}
+		
+		#jsddm li ul li
+		{	float: none;
+			display: inline}
+		
+		#jsddm li ul li a
+		{	width: auto;
+			background: #222}
+		
+		#jsddm li ul li a:hover
+		{	background: #444}
+</style>
+
+
+<div id="filepanel" style="position:fixed; right:0px; top:50px; padding:10px; background-color:#111111;"></div>
+
+
+<!-- editor class -->
+<script src="editor.js"></script>
+<script src="document.js"></script>
+
+<!-- cursor class -->
+<script src="cursor.js"></script>
+
+<!-- syntax stuff -->
+<script src="syntax.js"></script>
+<script src="syntax/php_parse.js"></script>
+<script src="syntax/jsparse.js"></script>
+<script src="syntax/htmlparse.js"></script>
+<script src="syntax/textparse.js"></script>
+<script>
+
+var timeout    = 500;
+var closetimer = 0;
+var ddmenuitem = 0;
+
+function jsddm_open()
+{  jsddm_canceltimer();
+   jsddm_close();
+   ddmenuitem = $(this).find('ul').css('visibility', 'visible');}
+
+function jsddm_close()
+{  if(ddmenuitem) ddmenuitem.css('visibility', 'hidden');}
+
+function jsddm_timer()
+{  closetimer = window.setTimeout(jsddm_close, timeout);}
+
+function jsddm_canceltimer()
+{  if(closetimer)
+   {  window.clearTimeout(closetimer);
+      closetimer = null;}}
+
+$(document).ready(function()
+{  $('#jsddm > li').bind('mouseover', jsddm_open)
+   $('#jsddm > li').bind('mouseout',  jsddm_timer)});
+
+document.onclick = jsddm_close;
+
+
+
+
+
+var timerDiv = document.createElement('div');
+timerDiv.id = "timer";
+timerDiv.style.position = 'fixed';
+timerDiv.style.bottom = '0px';
+timerDiv.innerHTML = 'testing';
+timerDiv.style.padding = '10px';
+timerDiv.style.backgroundColor = '#333333';
+$(document).append(timerDiv);
+  
+var includeDocLines = false;
+
+var currentFilename = '';
+
+var openfilelist = [];
+
+
+
+$(document).ready(function() {
+    //add todo link
+    $('#addTodo').click(function() {
+    	alert('foo');
+    	insertChar('/* TODO: */', charPos[0], lines[charPos[1]]);
+    	render(true);
+    	return false;
+    });
+ 
+    $.get('listFiles.php', {}, function(filelist) {
+        //alert(filelist);
+        $('#filepanel').html(filelist);
+    });
+    
+    $('.file').live('click', function() {
+        var fname = 'development/'+$(this).attr('href');
+        $.get('loadFile.php', {name: fname}, function(file) {
+            //alert('loaded '+fname);
+            currentFilename = fname;
+            lines = file.split("\n");
+            for(var i=0;i<lines.length;i++) {
+                lines[i] = lines[i].replace(/\t/g, '    ');
+            }
+            
+            console.log(lines);
+            
+            var ext = fname.split('.').pop();
+            //alert(ext);
+            syntax.engine(ext.toUpperCase());
+            render(true);
+            
+            openfilelist.push(fname);
+            var openfilestr = '<input type="text" value="Type filename here" style="color:silver;"/> ';
+            var theswitch = true;
+            $(openfilelist).each(function(i, filen) {
+            	if(theswitch) {
+            		filen = "<span class=\"file\" href=\""+filen.split('/').pop()+"\" style=\"color:lightblue; font-weight: bold;\">"+filen.split('/').pop()+"</span>";
+            		theswitch = !theswitch;
+            	}
+            	openfilestr += filen + " [x] | ";
+            });
+            
+            $('#openfiles').html(openfilestr);
+        });    
+        
+        return false;
+    });
+    
+    $.get('document.js', {}, function(file) {
+        lines = file.split("\n");
+        for(var i=0;i<lines.length;i++) {
+            lines[i] = lines[i].replace(/\t/g, '    ');
+        }
+        render();
+        
+    });
+    
+    $('#forceRender').click(function() {
+    	render(true);
+    });
+    
+    $('#includefile').click(function() {
+        if(!includeDocLines) {
+            $.get('syntax/jsparse.js', {}, function(file) {
+                var newLines = file.split("\r\n");
+                for(var i=0; i<newLines.length;i++) {
+                    lines.splice(i+charPos[1], 0, "      "+newLines[i].replace(/\t/g, '    '));
+                }
+
+                
+                includeDocLines = {start: charPos[1], end: charPos[1]+newLines.length-1};
+                render(true);
+            });
+        } else {
+            lines.splice(includeDocLines.start, (includeDocLines.end - includeDocLines.start)+1);
+            includeDocLines = false;
+            render(true);
+        }
+    });
+    
+    $('#selectAll').click(function() {
+        editorSelection = {x1:0, y1:0, x2: lines[lines.length-1].length, y2: lines.length-1};
+        render(true);
+        return false;
+    });
+    
+    $('#toggleComment').click(function() {
+        for(var i=editorSelection.y1;i<=editorSelection.y2;i++) {
+            dirty[i] = true;
+            lines[i] = insertChar('//',0, lines[i]);
+        }
+        render();
+        return false;
+    });
+    
+    $('.findmatch').live('click', function() {
+    	//alert('jumping to line '+$(this).attr('line'));
+        jumpToLine($(this).attr('line'));
+        
+        render(true);
+        return false;
+    });
+    
+    $('#addlibrary').click(function() {
+    	lines[charPos[1]] = insertChar('<scri'+'pt type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></scrpt>', charPos[0], lines[charPos[1]]);
+    	
+    	dirty[charPos[1]];
+    	render();
+    	return false;
+    });
+    
+    //test editor class
+    var editor = new Editor(canvas, {font: '16pt monospace', tabSize: 8});
+    editor.loadFile('document.js');
+});
+
+var canvas = document.getElementById('canvas');
+canvas.width = document.body.clientWidth-200;
+canvas.height = document.body.clientHeight;
+
+
+
+
+//setup a text cursor
+canvas.style.cursor = 'text';
+
+var context = canvas.getContext("2d");
+context.textBaseline = "top";
+context.font = "11pt monospace";
+context.clearRect(0,0,canvas.height,window.innerWidth-20);
+
+//now the line numbers canvas
+var lineCanvas = document.getElementById('lineCanvas');
+lineCanvas.height = canvas.height;
+var lineContext = lineCanvas.getContext("2d");
+lineContext.textBaseline = "top";
+lineContext.font = "11pt monospace";
+lineContext.style = '#000000';
+
+var dirty = {};
+var offset = 0;
+var lines = [];    //may make this an array of objects {text: '', indent: X, dirty: true}, or something
+var cursorPos = {x:0, y:0};
+var cursor = new cursor(cursorPos);
+var charPos = [0,0];
+
+
+
+var editorSelection = false;
+
+var find = false;
+
+//this will be set in some class var
+var mwidth = context.measureText('m').width;
+
+
+var  gotoLine = 0;
+
+var cachedRegions = [];
+
+var renderMode = true;
+
+var insertOn = false;
+
+//an array of characters/inputs that will trigger an undo item to be created
+//might include stopChars for the current language, and perhaps a timed trigger
+//perhaps as people type we'll store each action in a stack and then when an action doesn't match the ones before we "flush"
+//the stack into an undo item
+//we would also do this when a trigger was reached
+var undoTriggers = [];
+
+
+var translate = 0;
+var xScrollOffset = 0;
+var maxXPos = Math.floor(canvas.width/mwidth)-1;
+
+var edits = [];
+
+var listenInterval;
+var source = new EventSource("eventSource.php"); 
+document.getElementById('listen').onclick = function() {
+	
+	/*source.addEventListener("message", function(event) {
+	    //append the data to the body if you like
+	    //document.body.innerHTML += event.data + "<br>";
+	    lines[0] += event.data;
+	    render(true);
+	
+	}, false);
+	*/
+	
+	listenInterval = setInterval(function() {
+		$.get('eventSource.php', {}, function(data) {
+			lines[0] += data;
+			render(true);
+		});
+	}, 100);
+}
+
+document.getElementById('deafen').onclick = function() {
+	//source.addEventListener("message");
+	clearInterval(listenInterval);
+}
+
+
+//awesome. read a file from the disk!
+function handleFiles(files) {
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var fname;
+    
+    fname = file.name;
+    currentFilename = fname;
+    
+    var reader = new FileReader();
+    reader.onload = (function(fname) { return function(e) { 
+    	var file = e.target.result;
+	lines = file.split("\n");
+	for(var i=0;i<lines.length;i++) {
+		lines[i] = lines[i].replace(/\t/g, '    ');
+	}
+
+	var ext = fname.split('.').pop();
+	//alert(ext);
+	syntax.engine(ext.toUpperCase());
+	render(true);
+    }; })(fname);
+    reader.readAsText(file);
+  }
+}
+
+//lets get the character position of the cursor
+var posFromCursor = function(e) {
+    //get the details of where the client clicked in the canvas
+    var x = e.clientX - document.getElementById('canvas').offsetLeft;
+    var y = e.clientY - document.getElementById('canvas').offsetTop;
+
+    //this is our initial guess at the line they clicked on
+    var line = y/18;
+    
+    //get an int value
+    line = parseInt(line);
+    if(line < 0) line = 0;    //fix if we're under 0 for some reason
+    
+    //the initial guess isn't necessarily accurate enough
+    //so lets figure out the extent of the guessed line
+    var lineMin = (18*line);
+    var lineMax = lineMin+18;
+    
+    //if the click we above the guess lines extent, it was on the line above. otherwise it was the line below
+    if(y < lineMin) line--;
+    else if(y > lineMax) line++;
+    
+    //adjust for the current offset
+    renderLine = line;    //we use this to get a canvas position to render the cursor to, no matter what the offset
+    line+=offset;
+        
+    //the +10 in the calcs below if the left margin. this should be in some class var as well (editor/renderer?)
+    //console.log(lines[line].length);
+    var lineLen = lines[line].length;
+    var maxCharPos = mwidth * lineLen;
+    maxCharPos += 10;
+    
+    //console.log('Are we beyond the end of the line?: '+x+' > '+maxCharPos);
+    if(x > maxCharPos) {
+        var xpos = maxCharPos-mwidth;
+        context.fillStyle = '#06ACC2';
+        context.fillRect(xpos, 18*renderLine, 1, 18);
+        cursorPos = [xpos, 18*renderLine];
+        
+        c = lineLen+1;
+    } else {
+        for(var c=0; c<=lines[line].length+1; c++) {
+            if((mwidth*c)+10 > x) {
+                var xpos = (mwidth*(c-1))+10;
+                context.fillStyle = '#06ACC2';
+                context.fillRect(xpos, 18*renderLine, 1, 18);
+                cursorPos = [xpos, 18*renderLine];
+
+                break;
+            }
+        }
+    }
+    
+    charPos = [c-1, line];
+}
+
+var saveFile = function() {
+    var file = lines.join("\n");
+    $.post('saveFile.php', {name: currentFilename, file: file}, function(file) {
+        //alert('saved '+file);
+        $('#saved').fadeIn("slow", function() { $(this).fadeOut(); });
+        //render(true);
+    });
+}    
+
+var insertChar = function(ch, pos, str) {
+    //return str.substring(0, pos)+ch+str.substring(pos);
+    
+        var removeCount = insertOn ? 1:0;
+        var strA = str.split('');
+        //console.log(strA);
+        strA.splice(pos, removeCount, ch);
+        return strA.join('');
+}
+
+//removes a character from the string at the given position
+var deleteChar = function(pos, str) {
+        var strA = str.split('');
+        strA.splice(pos, 1);
+        return strA.join('');
+}
+
+//splits a line in two at pos. returns an array of the two lines
+var splitLine = function(line, pos) {
+    //console.log(line.match(/^\s+/g)[0]);
+    //tab indent - sort of!
+    var tabOffset = 0;
+    try {
+        if(line.match(/^\s+/g).length > 0) {
+            tabOffset = line.match(/^\s+/g)[0];
+        }
+    } catch(e) {}
+    
+    return [line.substring(0, pos), tabOffset+line.substring(pos)];
+}
+        
+//create a new blank line at position
+var addLine = function(pos, line) {
+        lines.splice(pos, 0, line);
+}
+
+//remove a whole line at position
+var removeLine = function(pos) {
+        lines.splice(pos, 1);
+}
+
+var joinLine = function(line1, line2) {
+    //console.log(line1 +''+ line2);
+        return line1 +''+ line2;
+}
+
+var clearSelection = function() {
+    if(!editorSelection || !editorSelection.x2) { editorSelection = false; return; }
+    
+    //console.log(editorSelection);
+    //editorSelection = false;
+    //render(true);    //a full refresh will clear the editorSelection
+    //but a better approach would be to mark the lines in the editorSelection as dirty!
+    for(var i=editorSelection.y1; i<=editorSelection.y2; i++) dirty[i] = true;
+    editorSelection = false;
+    render();
+}
+
+var getSelectedText = function() {
+    //pass in editorSelection?
+    //dunno
+    
+    //same line editorSelection
+    if(editorSelection.y1 == editorSelection.y2) return lines[editorSelection.y1].substring(editorSelection.x1, editorSelection.x2);
+    
+    console.log(editorSelection);
+    
+    //multi-line
+    //treat the first and last lines as a special case
+    var firstLine = lines[editorSelection.y1].substring(editorSelection.x1);
+    var lastLine = lines[editorSelection.y2].substring(0, editorSelection.x2);
+    
+    var selectedText = '';
+    for(var i=editorSelection.y1+1; i<editorSelection.y2; i++) {
+        selectedText += lines[i]+"\n";
+    }
+    
+    return firstLine+"\n"+selectedText+"\n"+lastLine;
+}
+//check out this link for details on copy and paste: http://www.geekpedia.com/tutorial126_Clipboard-cut-copy-and-paste-with-JavaScript.html
+var copyText = function() {
+    var clipboard = document.getElementById('clipboard');
+    var text = getSelectedText();
+    clipboard.value = text;
+    
+    alert(text);
+    
+    clipboard.focus();
+    clipboard.select();
+
+    clipboard.style.width = '0px';
+    clipboard.style.height = '0px';
+    clipboard.style.display = 'inline';
+    
+    CopiedTxt = document.selection.createRange();
+    
+    CopiedTxt.execCommand("Copy");
+}
+
+var copyTextAppend = function() {}
+
+/*
+HELL YEAH! Also allows pasting from the windows clipboard, bitch! :)
+*/
+var pasteText = function() {
+    document.getElementById('clipboard').focus();
+    document.getElementById('clipboard').value = '';
+    setTimeout(function() {
+	    var text = document.getElementById('clipboard').value.replace(/\t/g, '    ');
+	    //var text = 'test test test';
+	    
+	    var textLines = text.split("\n");
+	    
+	    lines[charPos[1]] = insertChar(textLines[0], charPos[0], lines[charPos[1]]);
+	    
+	    if(textLines.length > 1) {
+	        var newLines = splitLine(lines[charPos[1]], charPos[0]+textLines[0].length);
+	        lines[charPos[1]] = newLines[0];
+	        addLine(charPos[1]+1, newLines[1]);
+	        
+	        for(var i=1; i<textLines.length; i++) {
+	            addLine(charPos[1]+i, textLines[i]);
+	        }
+	        
+	    }
+	    
+	    console.log(lines[charPos[1]]);
+	    
+	    dirty[charPos[1]] = true;
+	    render(true);
+    }, 50);
+}
+
+var cutText = function() {
+    //basicaly a copy followed by a deletion
+    copyText();
+    deleteChunk(editorSelection);
+}
+
+var loadDocument = function(file) {
+    $.get(file, {}, function(file) {
+        lines = file.split("\r\n");
+        cachedRegions = false;
+        dirty = [];
+        render(true);
+    });
+}
+
+var jumpToLine = function(line) {
+    gotoLine = line;
+    
+    //if the goto line is off the current viewable area (up or down) then reset the offset
+    if(line > offset + 25 || line < offset - 25 )
+        offset = line;
+
+    charPos = [0, line];
+    render(true);
+}
+
+var dblClickSelectText = function(pos) {
+    //pos is the charPos of the double click
+    //read backward until we find a stopChar and log that as the start of the editorSelection
+    //read forward until we find a stopChar and log as the end
+    //render that line again
+}
+
+
+var addEditItem = function(item) {
+
+    /*
+    the aim of this function is to add to a list of edits that have been performed on this file
+    communicating these to the back-end to update the copy of the file there, which in turn may update another
+    client if collaboratibe editing is taking place
+    
+    so, this has be to be lightweight, as the edits should be viewable in real-time (but only if the document is 
+    being edited collaboratively
+    
+    we can build a list of actions that have been performed (like the undo list), but reduce the size of this by
+    adding edits that are the same together
+    
+    for example: if i start adding text as position X then each keystroke will generate an insertChar item
+    because each subsequent item will have the same start coords i can simple add this new char to this item rather than
+    create a whole new one.  so, insertChar(0,0,'a') becomes insertChar(0,0,'ab') and so on
+    
+    for the insert char case if the character is the same then we can reduce things further by defining a number of times to
+    complete this action. for example: insertChar(0,0,'a',10)
+    
+    for this simple case we can therefore reduce the amount of information to be sent to the server to complete the update
+    
+    
+    */
+
+}
+
+
+document.getElementById('goto').onclick = function() {
+    gotoLine = prompt('Goto Line');
+    jumpToLine(gotoLine);
+}
+
+document.getElementById('load').onclick = function() {
+    //var file = prompt('what file you wanna open?');
+    //loadDocument(file);
+}
+
+document.getElementById('load').onchange = function() {
+    console.log(this.value);
+    loadDocument(this.value);
+}
+
+document.getElementById('rendermode').onclick = function() {
+    renderMode = !renderMode;
+    render(true);
+}
+
+document.getElementById('xscroll').onclick = function() {
+    context.translate(translate - mwidth, 0);
+    render(true);
+}
+
+
+
+var findstr = function(str) {
+    var matches = [];
+    var i = lines.length;
+    var localFind = {matches: []};
+    var found = '';
+    
+    $('#findReplace').css({height:"0px", opacity:0}).animate({height: "200px", opacity:1}, 1000);
+    document.getElementById('findReplace').innerHTML = '';
+    find = {y1: 0, y2: lines.length, matches: []};
+    
+    //for(var i=0; i<len; i++) {
+    for(;i--;) {
+        
+        var idx = -1;
+        var count = 0;
+        
+        idx = lines[i].indexOf(str);
+        if(idx != -1) {
+            found = "<span href=\"\" class=\"findmatch\" line=\""+i+"\">Found match on line "+i+", char "+idx+"</span><br/>"+found;     //matches[i].push(idx);
+            
+            if(!localFind.matches[i]) {
+                //console.log('logging a find on line '+i);
+                localFind.matches[i] = [];
+            }
+            localFind.matches[i].push({x1: idx+1, x2: idx+str.length+1});
+        
+            while(idx != -1) {
+                idx = lines[i].indexOf(str, idx+str.length);
+                if(idx != -1) {
+                    found += "Found match on line "+i+", char "+idx+"<br/>";     //matches[i].push(idx);
+                    
+                    if(!localFind.matches[i]) {
+                        //console.log('logging a find on line '+i);
+                        localFind.matches[i] = [];
+                    }
+                    
+                    localFind.matches[i].push({x1: idx+1, x2: idx+str.length+1});
+                }
+                
+                count++;
+                if(count > 10) { console.log('breaking on count'); break; }
+            }
+        }
+    }
+    
+    find.matches = localFind.matches;
+    
+    document.getElementById('findReplace').innerHTML = found;
+}
+
+document.getElementById('find').onclick = function() {
+    find = false;
+    $('#findReplace').animate({height: "0px", opacity:0}, 1000);
+    render(true);
+    return;
+}
+
+var mousedown = false;
+
+canvas.onmousedown = function(e) {
+    mousedown = true;   
+
+    
+    //clear the current editorSelection
+    if(editorSelection && !e.shiftKey) clearSelection();
+    //well. not quite
+    //we don't want to clear the editorSelection if we're dragging it elsewhere
+    //this catch will need to be in onmousedown
+    //if(within(pos, editorSelection) handle dragging the selected text
+    
+    /*
+    //get the details of where the client clicked in the canvas
+    var x = e.clientX - document.getElementById('canvas').offsetLeft;
+    var y = e.clientY - document.getElementById('canvas').offsetTop;
+
+    //this is our initial guess at the line they clicked on
+    var line = y/18;
+    
+    //get an int value
+    line = parseInt(line);
+    if(line < 0) line = 0;    //fix if we're under 0 for some reason
+    
+    //the initial guess isn't necessarily accurate enough
+    //so lets figure out the extent of the guessed line
+    var lineMin = (18*line);
+    var lineMax = (18*line)+18;
+    
+    //if the click we above the guess lines extent, it was on the line above. otherwise it was the line below
+    if(y < lineMin) line--;
+    else if(y > lineMax) line++;
+    
+    //adjust for the current offset
+    renderLine = line;    //we use this to get a canvas position to render the cursor to, no matter what the offset
+    line+=offset;
+    
+    
+    gotoLine = line;
+    
+    dirty[line] = true;
+    dirty[charPos[1]] = true;
+    
+    //if(includeDocLines)
+    render(includeDocLines);
+    
+    
+        
+    //console.log('Line '+(line)+':'+lines[line]);
+    
+    // BELOW SHOULD BE A drawCursor FUNCTION IN A CURSOR CLASS
+    
+    //clear the existing cursor
+    context.clearRect((charPos[0]+1)*mwidth, charPos[1]*18, 1, 18);
+    
+    
+    //console.log(mwidth);
+    
+    //the +10 in the calcs below if the left margin. this should be in some class var as well (editor/renderer?)
+    //console.log(lines[line].length);
+    var lineLen = lines[line].length;
+    var maxCharPos = mwidth * lineLen;
+    maxCharPos += 10;
+    
+    //console.log('Are we beyond the end of the line?: '+x+' > '+maxCharPos);
+    if(x > maxCharPos) {
+        var xpos = maxCharPos-mwidth;
+        //context.fillStyle = '#06ACC2';
+        //context.fillRect(xpos, 18*renderLine, 1, 18);
+        cursorPos = [xpos, 18*renderLine];
+        
+        c = lineLen;
+    } else {
+        for(var c=0; c<=lines[line].length+1; c++) {
+            if((mwidth*c)+10 > x) {
+                var cxpos = (mwidth*(c-1))+10+mwidth;
+                //context.fillStyle = '#06ACC2';
+                //context.fillRect(xpos, 18*renderLine, 1, 18);
+                cursorPos = [c-1, renderLine];
+
+                break;
+            }
+        }
+    }
+    
+    //alert('clicked on character '+c+': '+lines[line][c]);
+    */
+    
+    var clickYPos = 0;
+    clickYPos = Math.floor((e.y-canvas.offsetTop)/18);
+    if(clickYPos < 0) clickYPos = 0;    //fix if we're under 0 for some reason
+    
+    var clickXPos = 0;
+    clickXPos = (Math.floor((e.x-canvas.offsetLeft)/mwidth) - 1);
+    
+    var lineLen = lines[clickYPos].length;
+    if(clickXPos > lineLen) clickXPos = lineLen;	//this works for documents that are loaded, but for the inital document it doesnt? very odd
+    
+    c = clickXPos;
+    
+    //alert(clickXPos + ", " + clickYPos);
+    
+    charPos = [clickXPos, clickYPos];
+    
+    //cursor.pos = {x: c-1, y: renderLine};
+    cursor.cursorOn = true;
+    render(true);
+    
+    editorSelection.x1 = c-1;
+    
+    //charPosOld = charPos;
+    //charPos = [c-1, line];
+    
+    //editorSelection = {x1:0, y1:0};
+    if(!editorSelection) {
+        editorSelection = {x1:charPos[0], y1: charPos[1]};
+    }
+}
+
+canvas.onmousemove = function(e) {
+    if(mousedown) {
+        //console.log('dragging');
+        //editorSelection.x2 = e.clientX/mwidth;
+        //editorSelection.y2 = (e.clientY/18)-1;
+        //get the details of where the client clicked in the canvas
+        var x = e.clientX - document.getElementById('canvas').offsetLeft;
+        var y = e.clientY - document.getElementById('canvas').offsetTop;
+    
+        //this is our initial guess at the line they clicked on
+        var line = y/18;
+        
+        //get an int value
+        line = parseInt(line);
+        if(line < 0) line = 0;    //fix if we're under 0 for some reason
+        
+        //the initial guess isn't necessarily accurate enough
+        //so lets figure out the extent of the guessed line
+        var lineMin = (18*line);
+        var lineMax = (18*line)+18;
+        
+        //if the click we above the guess lines extent, it was on the line above. otherwise it was the line below
+        if(y < lineMin) line--;
+        else if(y > lineMax) line++;
+        
+        //adjust for the current offset
+        renderLine = line;    //we use this to get a canvas position to render the cursor to, no matter what the offset
+        line+=offset;
+        
+        
+        gotoLine = line;
+        
+        dirty[line] = true;
+        dirty[charPos[1]] = true;
+        
+        //if(includeDocLines)
+        render(includeDocLines);
+        
+        
+            
+        //console.log('Line '+(line)+':'+lines[line]);
+        
+        // BELOW SHOULD BE A drawCursor FUNCTION IN A CURSOR CLASS
+        
+        //clear the existing cursor
+        context.clearRect((charPos[0]+1)*mwidth, charPos[1]*18, 1, 18);
+        
+        
+        //console.log(mwidth);
+        
+        //the +10 in the calcs below if the left margin. this should be in some class var as well (editor/renderer?)
+        //console.log(lines[line].length);
+        var lineLen = lines[line].length;
+        var maxCharPos = mwidth * lineLen;
+        maxCharPos += 10;
+        
+        //console.log('Are we beyond the end of the line?: '+x+' > '+maxCharPos);
+        
+        if(x > maxCharPos) {
+            var xpos = maxCharPos;
+            context.fillStyle = '#06ACC2';
+            context.fillRect(xpos, 18*renderLine, 1, 18);
+            cursorPos = [xpos, 18*renderLine];
+            
+            c = lineLen+1;
+        } else {
+            for(var c=0; c<=lines[line].length+1; c++) {
+                if((mwidth*c)+10 > x) {
+                    var xpos = (mwidth*(c-1))+10;
+                    context.fillStyle = '#06ACC2';
+                    context.fillRect(xpos, 18*renderLine, 1, 18);
+                    cursorPos = [xpos, 18*renderLine];
+    
+                    break;
+                }
+            }
+        }
+        
+        
+        //editorSelection.x1 = c-1;
+        
+        charPosOld = charPos;
+        charPos = [c-1, line];
+        
+        
+        editorSelection.x2 = c;
+        editorSelection.y2 = line;
+
+        if(editorSelection.y2 < editorSelection.y1) {
+            console.log('were selecting upwards');
+            console.log(lines[editorSelection.x1]);
+        }
+        
+        
+        
+        console.log(editorSelection);
+        
+        //if we're at the bttom (need top check too), then scroll the text
+        //if(e.clientY/18 >= 45) offset++;
+        //we'll need an interval here which will check if the position is still outside the area
+        //if it is keep scrolling!
+        
+        //rather than do a full refresh we could dirty up only those lines that have been added to/removed from
+        //the editorSelection since the last render.
+        //for example: lastY = editorSelection.y2, if curline > lastY, dirtyp[curline]
+        render(true);
+
+        var tSelection = editorSelection;
+
+        /*if(editorSelection.y2 < editorSelection.y1) {
+            console.log('were selecting upwards');
+            console.log(lines[editorSelection.x1]);
+
+           
+            var tY = tSelection.y1;
+            var tY2 = tSelection.y2;
+            tSelection.y1 = tY2;
+            tSelection.y2 = tY;
+        }
+        */
+        document.getElementById('fileDetail').innerHTML = tSelection.x1+','+tSelection.y1+','+tSelection.x2+','+tSelection.y2;
+    }
+}
+
+canvas.onmouseup = function(e) {
+    //console.log('mouseup at '+e.clientX+','+e.clientY);
+    mousedown = false;
+    //clear any scrolling check interval here
+
+    
+}
+
+//keydown captures some keys
+document.onkeydown = function(e) {
+    cursorOn = true;
+    
+    console.log(e.which);
+    
+    var ctrl = e.ctrlKey;
+    var shift = e.shiftKey;
+    var which = e.which;
+    
+    //clear the current editorSelection
+    if(!e.shiftKey && !e.ctrlKey) clearSelection();
+    
+    if(e.ctrlKey) {
+        if(e.which == 67) { copyText(); }
+        else if(e.which == 88) alert('cut');
+        else if(e.which == 86) { pasteText(); }
+        
+        //ctrl F
+        else if(e.which == 70) { document.getElementById('find').onclick(); }
+        //return false;
+        
+        //ctrl s - save
+        else if(e.which == 83) { saveFile(); return false; }
+        
+        //ctrl q - full canvas refresh for the time being to get past rendering errors
+        else if(e.which == 81) { render(true); return false; }
+        
+        //ctrl a - select all
+        else if(e.which == 65) { editorSelection = {x1:0, x2: lines[lines.length-1].length, y1: 0, y2:lines.length-1}; render(true); return false; }
+        
+        //ctrl a - select all
+        else if(e.which == 70) { findstr(prompt('What you looking for?')); render(true); return false; }
+    }
+    
+    
+    //page up
+    if(e.which == 33) {
+        offset-=40;
+        render(true);
+        return false;
+    } 
+    
+    //page down
+    if(e.which == 34) {
+        offset+=40;
+        render(true);
+        return false;
+    } 
+    
+    //home
+    //end
+    if(e.which == 36 || e.which == 35) {
+    
+        if(e.shiftKey) {
+            if(e.which == 36) editorSelection = {x1: 0, y1: charPos[1], x2: charPos[0], y2: charPos[1]};
+            else editorSelection = {x1: charPos[0], y1: charPos[1], x2: lines[charPos[1]].length, y2: charPos[1]};
+        }
+        
+        //quick jump to the top or bottom of the document
+        if(e.ctrlKey) {
+            offset = e.which == 36 ? 0:(lines.length - 45);
+            charPos = e.which == 36 ? [0,0]:[lines[lines.length-1].length, lines.length];
+            render(true);
+        } else {
+            //jump to the start or end of the current line
+            charPos[0] = e.which == 36 ? 0:lines[charPos[1]].length;
+            if(e.which == 36) {
+            	context.translate(mwidth * xScrollOffset, 0);
+            	xScrollOffset = 0;
+            	cursor.pos.x = 0;
+            }
+            
+            dirty[charPos[1]] = true;
+            render(true);
+        }
+        
+        return false;
+    }
+    
+    //insert?
+    if(e.which == 45) {
+        //set a flag so we know to replace chars when doing an insertChar rather than just insert one
+        insertOn = !insertOn;
+    }
+    
+    //arrow keys
+    
+    //backspace and delete
+    if(e.which == 8 || e.which == 46) {
+        //make this more robust!
+        //if we hit backspace at the beginning of a line join it with the line above
+        //also need to check for delete at the end of the line, joining with the line below
+        if(charPos[0] <= 0 && e.which == 8) {
+            var newX = lines[charPos[1]-1].length;
+            lines[charPos[1]-1] = joinLine(lines[charPos[1]-1], lines[charPos[1]]);
+            removeLine(charPos[1]);
+            
+            dirty[charPos[1]-1] = true;
+            //we'll need to render every line after this one!
+            //well not quite. we need to render every visdible line sfter this one
+            //much better!
+            for(var i=charPos[1]-1;i<charPos[1]+45;i++) dirty[i] = true;
+            //this should be a call to updateCursor or something that will redraw the cursor and update the charPos
+            charPos = [newX, charPos[1]-1];
+        } else {
+            if(charPos[0] == lines[charPos[1]].length && e.which == 46) {
+                
+                if(editorSelection.x2) {
+                    deleteChunk(editorSelection);
+                } else {
+            
+                    var newX = lines[charPos[1]].length;
+                    lines[charPos[1]] = joinLine(lines[charPos[1]], lines[charPos[1]+1]);
+                    removeLine(charPos[1]+1);
+                    
+                    dirty[charPos[1]] = true;
+                    charPos = [newX, charPos[1]];
+                    
+                }    
+            } else {
+                var pos = e.which == 8 ? charPos[0]-1:charPos[0];
+                lines[charPos[1]] = deleteChar(pos, lines[charPos[1]]);
+                //this should be a call to retreatCursor or something that will redraw the cursor and update the charPos
+                if(e.which == 8) charPos[0]--;
+            }
+        }
+        
+        console.log(charPos[0]);
+        
+        if(xScrollOffset > 0 && charPos[0] < (xScrollOffset)) {
+        //if(xScrollOffset > 0 && (charPos[0] - maxXPos) > 0) {
+        	try {
+	        	context.translate(mwidth, 0);
+    			render(true);
+    			xScrollOffset--;
+    		} catch(e) {
+    			alert(e.description);
+    		}
+        }
+        
+        dirty[charPos[1]] = true;
+        render();
+        
+        return false;
+    }
+    
+    //tab
+    if(e.which == 9) {
+	if(e.shiftKey) {
+		var newX = charPos[0]-4 >= 0 ? charPos[0]-4:0;
+		var linearr = lines[charPos[1]].split('');
+	        for(var i=0; i<4; i++) {
+	        	if(linearr[0] == ' ') linearr.splice(0, 1);
+	        }
+	        lines[charPos[1]] = linearr.join('');
+	} else {
+		var newX = charPos[0]+4;
+	        lines[charPos[1]] = insertChar('    ', charPos[0], lines[charPos[1]]);
+	}
+	
+        dirty[charPos[1]] = true;
+        //this should be a call to updateCursor or something that will redraw the cursor and update the charPos
+        charPos = [newX, charPos[1]];
+        
+        render();
+        return false;
+    }
+    
+    //left and right
+    if(e.which == 37 || e.which == 39) {
+        
+        if(!editorSelection) editorSelection = {x1: charPos[0], x2: charPos[0], y1: charPos[1], y2: charPos[1]};
+               
+        dirty[charPos[1]] = true;
+        
+        //update the cursor position
+        charPos[0] += e.which == 37 ? -1:1;
+        if(charPos[0] > lines[charPos[1]].length) {
+            charPos[0] = 0;
+            charPos[1]++;
+            
+        } else if(charPos[0] < 0) {
+            charPos[0] = lines[charPos[1]-1].length;
+            charPos[1]--;
+        }
+        
+        if(e.shiftKey) {
+            //if shift is held then we're marking a selection
+            
+            //TODO: If CTRL is also held then we should jump the cursor forward to the next (or previous) stopChar (from the current parser) and modify the selection accordingly
+            //if(e.ctrlKey) {}
+            
+            if(!editorSelection.y2) editorSelection.y2 = charPos[1];
+            editorSelection.x2 = charPos[0];
+            editorSelection.y2 = charPos[1];
+            
+            console.log(editorSelection);
+            dirty[charPos[1]] = true;
+        } else {
+            clearSelection();
+        }
+        
+        
+        
+        render();
+        return false;
+    }
+    
+    
+    //up and down
+    if(e.which == 38 || e.which == 40) {
+    
+        dirty[charPos[1]] = true;
+        
+        if(e.shiftKey) {
+            editorSelection = {x1: editorSelection.x1, x2: editorSelection.x2, y1: editorSelection.y1, y2: editorSelection.y2+1};
+        }
+        
+        //update the cursor position
+        charPos[1] += e.which == 38 ? -1:1;
+        if(charPos[0] > lines[charPos[1]].length) charPos[0] = lines[charPos[1]].length;
+        
+        dirty[charPos[1]] = true;
+        
+        //if we've moved past the visible area then render new lines
+        var fullRender = false;
+        if(charPos[1] > (offset+45) || charPos[1] < offset) {
+        	offset += charPos[1] > (offset+45) ? 1:-1;
+        	fullRender = true;
+        }
+        
+        if(e.shiftKey) {
+            editorSelection = {x1: editorSelection.x1, x2: charPos[0], y1: editorSelection.y1, y2: charPos[1]};
+        }
+        
+        render(fullRender);
+        return false;
+    }
+    
+    
+}
+
+//keypress captures the rest
+document.onkeypress = function(e) {
+    cursorOn = true;
+    
+
+    
+    //console.log(e.which);
+    //console.log(e);
+    if(e.ctrlKey) {
+        if(e.which == 26 && e.shiftKey) alert('redo');
+        else if(e.which == 26) alert('undo');
+        
+        return false;
+    }
+    
+    //enter
+    if(e.which == 13) {
+        var newLines = splitLine(lines[charPos[1]], charPos[0]);
+        lines[charPos[1]] = newLines[0];
+        addLine(charPos[1]+1, newLines[1]);
+        
+        //console.log(newLines);
+
+        //move the character pointer to the start of the new line
+        if(newLines[1].match(/^\s+/g)) {
+            var xpos = newLines[1].match(/^\s+/g)[0].length ? newLines[1].match(/^\s+/g)[0].length:0;
+        } else {
+            var xpos = 0;
+        }
+        
+        
+        charPos = [xpos, charPos[1]+1];    //this should be a call to updateCursor or something that will redraw the cursor and update the charPos
+        
+        //we'll need to render every line after this one!
+        //well not quite. we need to render every visdible line sfter this one
+        //much better!
+        //the loop below is not quite right as +45 is the max lines, but there may only be one line after this one
+        for(var i=(charPos[1])-1;i<charPos[1]+45;i++) dirty[i] = true;
+        
+        console.log(charPos);
+    } else {
+        //make this more robust!
+        lines[charPos[1]] = insertChar(String.fromCharCode(e.which), charPos[0], lines[charPos[1]]);
+        //send the user input
+        $.get('receiveUserInput.php', {c:String.fromCharCode(e.which)}, function(data) {
+        	//alert(data);
+        });
+        
+        //this should be a call to advanceCursor or something that will redraw the cursor and update the charPos
+        charPos[0]++;
+        
+        console.log("Document length: "+lines.join('').length);
+        
+        if(edits.length > 5) {
+        	var sendStr = '';
+        	$(edits).each(function(i, edit) {
+        		sendStr += "type: '"+edit.type+"', chars: '"+edit.ch+"', pos: ["+edit.pos[0]+","+edit.pos[1]+"]\n";
+        	});
+        	
+        	//alert(sendStr);
+        	
+        	$.post('receiveEdits.php', {sendstr: sendStr}, function(data) {
+	        	//alert(data);
+	        	$('#saved').fadeIn("slow", function() { $(this).fadeOut(); });
+	        });
+	        
+	        edits = [];
+        }
+        
+        //if the last edit was the same type as this edit, then append to it if possible
+        //this needs to be more robust, for example the same line, plus the previous X pos + 1 for an insert
+        if(edits.length > 0 && edits[edits.length-1].type == 'insert') {
+        	//alert(edits[edits.length-1].pos[0]);
+        	//alert(charPos[0]);
+        	
+        	if(charPos[1] == edits[edits.length-1].pos[1] && charPos[0] == (edits[edits.length-1].pos[0])) {
+	        	edits[edits.length-1].ch += String.fromCharCode(e.which);
+	        } else {
+	        	edits.push({type: 'insert', pos: charPos, ch: String.fromCharCode(e.which)});
+	        }
+        } else {
+	        edits.push({type: 'insert', pos: charPos, ch: String.fromCharCode(e.which)});
+	}
+	
+	console.log("Edit length (approx): "+(6+11+15+edits[edits.length-1].ch.length));
+        
+        console.log(edits);
+        
+        if(charPos[0] > maxXPos) {
+        	context.translate(translate - mwidth, 0);
+    		render(true);
+    		xScrollOffset++;
+        }
+    }
+
+    //hacked attempt at scrolling on the X axis when we exceed the size of the canvas
+    //needs to scroll back to 0 as well, and take into account any Y offset rather than hardcode 0
+    //if(charPos[0] > 20) context.translate(translate - mwidth, 0);
+
+    dirty[charPos[1]] = true;
+    render();
+    return false;
+}
+
+document.getElementById('canvas').onmousewheel = function(e) {
+        var delta=e.detail? e.detail*(-120) : e.wheelDelta; //check for detail first so Opera uses that instead of wheelDelta
+
+    	if(delta > 0) {
+            offset-=5;
+            charPos[1]+=5;
+        } else {
+            offset+=5;
+            charPos[1]-=5;
+        }
+        
+        render(true);
+        return false;
+}
+    
+canvas.oncontextmenu = function(e) {
+    $('#contextMenu').css('top', e.y).css('left', e.x).show();
+    
+    return false;
+}
+
+document.getElementById('canvas').onclick = function(e) {
+    //console.log(e);
+    //hide the context menu
+    $('#contextMenu').hide();    
+    
+    if(e.shiftKey) {
+        //console.log('Selection runs from line '+charPosOld[1]+', char '+charPosOld[0]+' to line '+charPos[1]+', char '+charPos[0]);
+        console.log(editorSelection);
+        if(!editorSelection) {
+            console.log(' no editorSelection');
+            editorSelection = {x1: charPosOld[0]+1, y1: charPosOld[1], x2: charPos[0], y2: charPos[1]};
+        } else {
+            // adding to an existing editorSelection
+            var s = editorSelection;
+            editorSelection = {x1: s.x1, y1: s.y1, x2: charPos[0], y2: charPos[1]};
+        }
+        
+        //console.log(getSelectedText().split("\n"));
+        
+        render();
+    }
+    
+    /*
+    this is a pretty naive implementation of an ad hoc brace matching algorithm
+    would be better to check the line using indexof for a brace, before checking each char
+    i'm sure there are other optimizations and these braces should be picked up in parsing with locations updated during
+    editing really
+    */
+    /*
+    if we can effciently reverse each line we can do indexOf matches to effectively look backward along each line
+    counting open/close brackets as we go.
+    this is the same spirit as looking at each char, but hopefully offloads more of the legwork into the JS engine
+    ????
+    
+    for(;line>=0;line--) {
+        var f = reverse(lines[line]);
+        
+        var closeCount = 0;
+        var openCount = 0;
+        var counter = 0;
+        var idx = 0;
+        
+        //console.log(f+" :: F LENGTH: "+f.length);
+        
+        while(idx !== -1) {
+            if(counter > 10) return;
+            counter++;
+            
+            idx = f.indexOf('}', idx);
+            if(idx != -1) {
+                //console.log('} at pos '+idx);
+                closeCount++;
+                idx++;
+                if(idx == f.length) break;
+                if(openCount == closeCount) {
+                    //console.log('found match on line '+lines[line]);
+                    return;
+                }
+                continue;
+            }
+            
+            idx = f.indexOf('{', idx);
+            if(idx != -1) {
+                //console.log('{ at pos '+idx);
+                openCount++;
+                idx++;
+                if(idx == f.length) break;
+                if(openCount == closeCount) {
+                    //console.log('found match on line '+lines[line]);
+                    return;
+                }
+                continue;
+            }
+        }
+        
+        
+        //console.log(reverse(lines[line]));
+    }*/
+    
+    return;
+    
+    if(lines[line].charAt(charPos[0]-1) == '}') {
+        
+    
+        console.log('Found a closing brace on line '+line+', char '+charPos[0]+' looking for opener');
+        var closeCount = 0;
+        var openCount = 0;
+
+        //current line special case - rubbish :)
+        var hackedLine = lines[line].replace(/[^\{\}]/g, '');
+        console.log("Hacked line: "+hackedLine);
+        //var startPos = charPos[0]-1;
+        var startPos = hackedLine.length;
+        for(var i=startPos;i>=0;i--) {    
+            //var ch = lines[line].charAt(i);
+            var ch = hackedLine.charAt(i);
+            console.log('checking char '+ch);
+            if(i == 0 && ch != '{') {
+                if(line == 0) { console.log('couldnt find matching open bracket'); return; }
+                //we've exhausted this line
+                line--;
+                break;
+            }
+            
+            if(ch == '{') openCount++;
+            if(ch == '}') closeCount++;
+            
+            if(openCount == closeCount) {
+                console.log('Found the opener on line '+line+':'+lines[line]);
+                $('#braces').html('This brace closes the opener on this <a href="" onclick="jumpToLine('+line+'); return false;">line '+line+'</a> [<b>'+lines[line]+'</b>] at pos '+i);
+                return;
+            }
+        }
+
+        for(;line>=0;line--) {
+            //if the line has no open or close braces move onto the next one
+            if(lines[line].indexOf('{') == -1 && lines[line].indexOf('}') == -1) continue;
+
+            var hackedLine = lines[line].replace(/[^\{\}]/g, '');
+            console.log("Hacked line: "+hackedLine);
+        
+            //for(var i=lines[line].length;i>=0;i--) {    
+            for(var i=hackedLine.length;i>=0;i--) {    
+                //var ch = lines[line].charAt(i);
+                var ch = hackedLine.charAt(i);
+                console.log('checking char '+ch);
+                if(i == 0 && ch != '{') {
+                    if(line == 0) { console.log('couldnt find matching open bracket'); return; }
+                    //we've exhausted this line
+                    break;
+                }
+                
+                if(ch == '{') openCount++;
+                if(ch == '}') closeCount++;
+                
+                if(openCount == closeCount) {
+	            console.log('Found the opener on line '+line+':'+lines[line]);
+                    $('#braces').html('This brace closes the opener on this <a href="" onclick="jumpToLine('+line+'); return false;">line '+line+'</a> [<b>'+lines[line]+'</b>] at pos '+i);
+                    return;
+                }
+            }
+        }
+            
+    }
+}
+
+function reverse(str) {
+        return str.split('').reverse().join('');
+    }
+    
+    
+var syntax = new Syntax();  
+function render(full) {
+    //reset the cursor blink so we don't end up with ghosty cursors
+    //clearInterval(cursorBlink);
+    clearInterval(cursor.cursorBlinkTimer);
+    //console.log(render.caller);
+    
+    /*
+    // Build a worker
+    var worker = new Worker("testworker.js");
+    
+    // Listen for incoming messages
+    worker.onmessage = function(e){
+        alert(e.data.code);
+        console.log(e.data.other);
+    };   
+    
+    // Start the worker
+    worker.postMessage( {code:"var foo = false; //a test line of code", other:[true, false, true]} );
+    */
+    
+            
+    if(lines.length <= 0) lines = document.getElementById('typer').value.split("\n");
+    var len = lines.length;
+    var maxLines = 45;
+    var y = offset;
+    var maxLine = y+maxLines
+    //if(maxLine > len) maxLine = len;
+        
+    //quick check to see if we should just not do anything
+    if(offset < 0 || ((len-maxLines) > 0 && offset > (len-maxLines))) { offset = offset < 0 ? 0:(len-maxLines); return; }
+
+    //only do this is we're doing a full refresh
+    if(full) {
+    	context.clearRect(0,0,canvas.width, canvas.height);
+    	//the line numbers as well
+    	lineCanvas.width = (len + ':  ').length * lineContext.measureText('m').width;
+    	lineContext.font = "11pt monospace";
+    	lineContext.clearRect(0,0,lineCanvas.width, lineCanvas.height);
+    }
+    
+    //console.log(cachedRegions);
+
+    //console.log(editorSelection);
+    
+    var fillCount = 0;
+    
+    for(; y<maxLine;y++) {
+    	//let's render the line number first
+
+        lineContext.fillText((y)+':', 10, 18*(y-offset));
+    
+        var text = lines[y];
+        
+        if(!cachedRegions[y]) {
+            syntax.clearRegions();
+            syntax.highlight(text);
+            var regions = syntax.getRegions();
+            cachedRegions[y] = regions;
+            //console.log(regions);
+        } else {
+            //if the line hasn't changed don't bother re-rendering it
+            //console.log(dirty);
+            if(!dirty[y] && !full) continue;
+            //var regions = cachedRegions[y];
+            syntax.clearRegions();
+            syntax.highlight(text);
+            var regions = syntax.getRegions();
+            cachedRegions[y] = regions;
+            //console.log('rendering line: '+y);
+        }
+        
+        if(!full) context.clearRect(0,18*y,canvas.width,18);
+        
+        //console.log(regions);
+        
+        /*
+        if(y==gotoLine) {
+            context.fillStyle = '#E5EECC';
+            context.fillRect(0, 18*(y-offset), canvas.width, 18);
+        }
+        */
+        
+        /*
+        //experimenting with hightlighting certain areas of text
+        if(y >= charPos[1] - 2 && y <= charPos[1] + 2) {
+            context.globalAlpha = 1;
+        } else {
+            context.globalAlpha = 0.5;        
+        }
+        */
+        
+        /*if(charPos && y==charPos[1]) {
+            context.fillStyle = '#444444';
+            context.fillRect(0, 18*(y-offset), canvas.width, 18);
+        }*/
+        
+        //SELECTIONS
+        if(editorSelection) {
+                //fix up our editorSelection, we need x1 and y1 to be the lower values and x2 and y2 to be greater
+                /*if(editorSelection.x1 > editorSelection.x2) {
+                    var tX = editorSelection.x1;
+                    editorSelection.x1 = editorSelection.x2;
+                    editorSelection.x2 = tX;
+                }
+
+                //I don't really understand why, but including this makes things go wrong...
+                if(editorSelection.y1 > editorSelection.y2) {
+                    var tY = editorSelection.y1;
+                    editorSelection.y1 = editorSelection.y2;
+                    editorSelection.y2 = tY;
+                }*/
+
+                
+                //figure out our upper and lower Y bounds
+	        var yLow = editorSelection.y2 > editorSelection.y1 ? editorSelection.y1:editorSelection.y2;
+	        var yHigh = editorSelection.y2 > editorSelection.y1 ? editorSelection.y2:editorSelection.y1;
+                
+                console.log(editorSelection);
+
+	        //yHigh -= 2;
+	        if(y > yLow && y < yHigh) {
+	            var x = 0;
+	            var w = lines[y].length*mwidth;
+
+                    console.log('rendering: x,y,w:'+x+','+y+','+w+'');
+	            context.fillStyle = '#9DBFD1';
+	            context.fillRect(x, 18*(y-offset), w, 18);
+	        }
+
+		if(yHigh != yLow) {
+	                if(y == yHigh) {
+	                    var x = 0;
+		            var w = editorSelection.x2*mwidth;
+	
+	                    console.log('rendering: x,y,w:'+x+','+y+','+w+'');
+		            context.fillStyle = '#9DBFD1';
+		            context.fillRect(x, 18*(y-offset), w, 18);
+	                }
+	
+	                if(y == yLow) {
+	                    var x = (editorSelection.x1+1)*mwidth;
+		            var w = lines[yLow].length*mwidth;
+	
+	                    console.log('rendering: x,y,w:'+x+','+y+','+w+'');
+		            context.fillStyle = '#9DBFD1';
+		            context.fillRect(x, 18*(y-offset), w, 18);
+	                }
+	        } else {
+	        	var x = (editorSelection.x1+1)*mwidth;
+			var w = ((editorSelection.x2-editorSelection.x1))*mwidth;
+			
+			console.log('rendering: x,y,w:'+x+','+y+','+w+'');
+			context.fillStyle = '#9DBFD1';
+			context.fillRect(x, 18*(y-offset), w, 18);
+	        }
+	}
+        
+        //FIND MATCHES
+        if(find.matches) {
+	        var yLow = find.y1;
+	        var yHigh = find.y2;
+	            
+	        if(y >= yLow && y <= yHigh) {
+	            var localMatches = find.matches;
+	            
+	            context.globalAlpha = 0.5;
+	            var x = 10;
+	            if(localMatches[y]) {
+	                for(var j=0; j<localMatches[y].length; j++) {
+	                    x1 = localMatches[y][j].x1*mwidth;
+	                    x2 = localMatches[y][j].x2*mwidth;
+	                    
+	                    var w = x2 - x1;
+	                    
+	                    context.fillStyle = '#3333aa';
+	                    context.fillRect(x1, 18*(y-offset), w, 18);
+	                }
+	            }
+	            
+	            context.globalAlpha = 1;
+	        }
+        }
+        
+        //INLINE EXTERNAL DOCUMENTS
+        if(y >= includeDocLines.start && y <= includeDocLines.end) {
+            if(charPos[1] >= includeDocLines.start && charPos[1] <= includeDocLines.end) { 
+                context.globalAlpha = 1;
+            } else {
+                context.globalAlpha = 0.5;
+            }
+            
+            context.fillStyle = 'rgba(100,200,200,0.35)';
+            context.fillRect(10, 18*(y-offset), canvas.width, 18);
+        } else {
+            if(charPos[1] >= includeDocLines.start && charPos[1] <= includeDocLines.end) { 
+                context.globalAlpha = 0.5;
+            } else {
+                context.globalAlpha = 1;
+            }
+        }
+        
+        //to reduce any complexity in editorSelections we could simply render selected lines as white text
+        //this would mean quicker rendering when selecting, which would free up time to do other stuff
+        
+        //just plain white. or syntax highlighted
+        if(!renderMode) {
+            context.fillStyle = '#000000';
+            
+            //for testing editing lets do a really simple render. just output the whole line in white
+            context.fillText(text, 10, 18*(y-offset));
+        } else {
+            
+            var line = '';
+            var cPos = 0;
+            
+            for(var style in regions) {
+                if (!regions.hasOwnProperty(style)) continue;
+                
+                //console.log(regions);
+                
+                line = '';
+            	cPos = 0;
+                var thisRegion = regions[style];
+                for(var sr=0; sr<thisRegion.length; sr++) {
+                    for(;cPos<regions[style][sr].spos; cPos++) line += ' ';
+                    //console.log(text.substring(thisRegion[sr].spos, thisRegion[sr].epos));
+                    line += text.substring(regions[style][sr].spos, regions[style][sr].epos);
+                    cPos = regions[style][sr].epos;
+                }
+                
+                //console.log(line);
+                
+                if(style == '#414CA6') context.font = 'bold 11pt monospace';
+                else context.font = '11pt monospace';
+                
+                context.fillStyle = style;
+                context.fillText(line, 10, 18*(y-offset));
+                //fillCount++;
+            }
+            
+            
+            
+        }
+    }
+    
+    //console.log('fillText count: '+fillCount);
+    
+    //once we've drawn things, nothing should be dirty. for a few milliseconds anyway!
+    dirty = {};
+    
+    //render the cursor
+    /*if(charPos[1] > offset && charPos[1] < offset+45) {
+	    context.fillStyle = '#06ACC2';
+	    context.fillRect((charPos[0]+1)*mwidth, 18*charPos[1], 1, 18);
+    }*/
+    
+    //update file details
+    document.getElementById('fileDetail').innerHTML = "Lines: "+lines.length+", Position: "+charPos[1]+","+charPos[0];
+    
+    //set the cursor off again
+    //cursorBlink = setInterval("blinkCursor()", 350);
+    //cursorOn = true;
+    cursor.pos.x = charPos[0]+1;
+    cursor.pos.y = charPos[1];
+    cursor.blink();
+   // cursor.cursorOn = true;
+
+	/*
+	xPositions = [];
+	yPositions = [];
+	
+	//Draw vertical lines   
+	for (var x = 0; x < 200*mwidth; x += mwidth) {
+		context.moveTo(x, 0);
+		context.lineTo(x, canvas.height);
+		xPositions.push({min: x, max: x+mwidth});
+	}
+
+	for (var y = 0; y < 50*18; y += 18) {
+		context.moveTo(0, y);
+		context.lineTo(canvas.width, y);
+		
+		yPositions.push({min: y, max: y+18});
+	}
+	
+	context.strokeStyle = "#eee";
+	context.stroke();
+	*/
+}
+
+/*
+var cursorBlink;	//this is where we store the interval that will blink the cursor
+var cursorOn = true;
+
+
+function blinkCursor() {
+    //render the cursor
+    if(charPos[1] > offset && charPos[1] < offset+45) {
+	    if(cursorOn) {
+		context.fillStyle = '#06ACC2';
+	    } else {
+	    	context.fillStyle = '#FFFFFF';
+	    }
+	    context.fillRect((charPos[0]+1)*mwidth, 18*charPos[1], 2, 18);
+    }
+    
+    cursorOn = !cursorOn;
+}
+//cursorBlink = setInterval("blinkCursor()", 500);
+*/
+
+
+//console.log(charPos);
+</script>
+
+</body>
+</html>
